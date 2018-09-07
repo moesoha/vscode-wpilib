@@ -1,8 +1,18 @@
 'use strict';
 
 import * as vscode from 'vscode';
+import * as nls from 'vscode-nls';
 import { IExternalAPI } from 'vscode-wpilibapi';
 import { requestTeamNumber } from './preferences';
+
+interface IEnvNlsConfig {
+  locale: string;
+}
+const envNlsConfig: IEnvNlsConfig | null = process.env.VSCODE_NLS_CONFIG ? JSON.parse(process.env.VSCODE_NLS_CONFIG) as IEnvNlsConfig : null;
+const localize = nls.config({
+  locale: envNlsConfig ? envNlsConfig.locale : undefined,
+  messageFormat: nls.MessageFormat.both,
+})();
 
 // Most of our commands are created here.
 // To create a command, use vscode.commands.registerCommand with the name of the command
@@ -28,7 +38,7 @@ export function createVsCommands(context: vscode.ExtensionContext, externalApi: 
     const preferencesApi = externalApi.getPreferencesAPI();
     const workspace = await preferencesApi.getFirstOrSelectedWorkspace();
     if (workspace === undefined) {
-      vscode.window.showInformationMessage('Cannot set team number in an empty workspace');
+      vscode.window.showInformationMessage(localize('message.emptyWorkspace.set', 'Cannot set team number in an empty workspace.'));
       return;
     }
     const preferences = preferencesApi.getPreferences(workspace);
@@ -43,7 +53,7 @@ export function createVsCommands(context: vscode.ExtensionContext, externalApi: 
     const preferencesApi = externalApi.getPreferencesAPI();
     const workspace = await preferencesApi.getFirstOrSelectedWorkspace();
     if (workspace === undefined) {
-      vscode.window.showInformationMessage('Cannot deploy code in an empty workspace');
+      vscode.window.showInformationMessage(localize('message.emptyWorkspace.deployCode', 'Cannot deploy code in an empty workspace.'));
       return;
     }
     await externalApi.getDeployDebugAPI().deployCode(workspace, source);
@@ -53,14 +63,14 @@ export function createVsCommands(context: vscode.ExtensionContext, externalApi: 
     const preferencesApi = externalApi.getPreferencesAPI();
     const workspace = await preferencesApi.getFirstOrSelectedWorkspace();
     if (workspace === undefined) {
-      vscode.window.showInformationMessage('Cannot debug code in an empty workspace');
+      vscode.window.showInformationMessage(localize('message.emptyWorkspace.debugCode', 'Cannot debug code in an empty workspace.'));
       return;
     }
     await externalApi.getDeployDebugAPI().debugCode(workspace, source);
   }));
 
   context.subscriptions.push(vscode.commands.registerCommand('wpilibcore.simulateCode', async (_source: vscode.Uri | undefined) => {
-    await vscode.window.showInformationMessage('This functionality is disabled for the Alpha test.');
+    await vscode.window.showInformationMessage(localize('message.disableInTest', 'This functionality is disabled for the Alpha test.'));
     return;
 
     // const preferencesApi = externalApi.getPreferencesAPI();
@@ -73,7 +83,7 @@ export function createVsCommands(context: vscode.ExtensionContext, externalApi: 
   }));
 
   context.subscriptions.push(vscode.commands.registerCommand('wpilibcore.testCode', async (_source: vscode.Uri | undefined) => {
-    await vscode.window.showInformationMessage('This functionality is disabled for the Alpha test.');
+    await vscode.window.showInformationMessage(localize('message.disableInTest', 'This functionality is disabled for the Alpha test.'));
     return;
 
     // const preferencesApi = externalApi.getPreferencesAPI();
@@ -89,7 +99,7 @@ export function createVsCommands(context: vscode.ExtensionContext, externalApi: 
     const preferencesApi = externalApi.getPreferencesAPI();
     const workspace = await preferencesApi.getFirstOrSelectedWorkspace();
     if (workspace === undefined) {
-      vscode.window.showInformationMessage('Cannot set team number in an empty workspace');
+      vscode.window.showInformationMessage(localize('message.emptyWorkspace.buildCode', 'Cannot build code in an empty workspace.'));
       return;
     }
     await externalApi.getBuildTestAPI().buildCode(workspace, source);
@@ -97,13 +107,13 @@ export function createVsCommands(context: vscode.ExtensionContext, externalApi: 
 
   context.subscriptions.push(vscode.commands.registerCommand('wpilibcore.createCommand', async (arg: vscode.Uri | undefined) => {
     if (arg === undefined) {
-      await vscode.window.showInformationMessage('Must select a folder to create a command');
+      await vscode.window.showInformationMessage(localize('message.createCommand.noFolder', 'Must select a folder to create a command.'));
       return;
     }
     const preferencesApi = externalApi.getPreferencesAPI();
     const workspace = await preferencesApi.getFirstOrSelectedWorkspace();
     if (workspace === undefined) {
-      vscode.window.showInformationMessage('Cannot create command in an empty workspace');
+      vscode.window.showInformationMessage(localize('message.emptyWorkspace.createCommand', 'Cannot create command in an empty workspace.'));
       return;
     }
     await externalApi.getCommandAPI().createCommand(workspace, arg);
@@ -113,16 +123,18 @@ export function createVsCommands(context: vscode.ExtensionContext, externalApi: 
     const preferencesApi = externalApi.getPreferencesAPI();
     const workspace = await preferencesApi.getFirstOrSelectedWorkspace();
     if (workspace === undefined) {
-      vscode.window.showInformationMessage('Cannot set team number in an empty workspace');
+      vscode.window.showInformationMessage(localize('message.emptyWorkspace.set', 'Cannot set language in an empty workspace.'));
       return;
     }
 
     const deployDebugApi = externalApi.getDeployDebugAPI();
 
     if (deployDebugApi.getLanguageChoices().length <= 0) {
-      await vscode.window.showInformationMessage('No languages available to add');
+      await vscode.window.showInformationMessage(localize('message.noLanguageAvailableToAdd', 'No languages available to add'));
     }
-    const result = await vscode.window.showQuickPick(deployDebugApi.getLanguageChoices(), { placeHolder: 'Pick a language' });
+    const result = await vscode.window.showQuickPick(deployDebugApi.getLanguageChoices(), {
+      placeHolder: localize('layout.pickLanguage', 'Pick a language'),
+    });
     if (result === undefined) {
       return;
     }
@@ -135,42 +147,50 @@ export function createVsCommands(context: vscode.ExtensionContext, externalApi: 
     const preferencesApi = externalApi.getPreferencesAPI();
     const workspace = await preferencesApi.getFirstOrSelectedWorkspace();
     if (workspace === undefined) {
-      vscode.window.showInformationMessage('Cannot set skip tests in an empty workspace');
+      vscode.window.showInformationMessage(localize('message.emptyWorkspace.set', 'Cannot set skip tests in an empty workspace.'));
       return;
     }
 
-    const result = await vscode.window.showInformationMessage('Skip tests on deploy?', 'Yes', 'No');
+    const result = await vscode.window.showInformationMessage(
+      localize('message.skipTest.confirm', 'Skip tests on deploy?'),
+      localize('layout.yes', 'Yes'), localize('layout.no', 'No'));
     if (result === undefined) {
       console.log('Invalid selection for settting skip tests');
       return;
     }
     const preferences = preferencesApi.getPreferences(workspace);
-    const request = await vscode.window.showInformationMessage('Save globally or project level?', 'Globally', 'Project');
+    const request = await vscode.window.showInformationMessage(
+      localize('message.ask.saveLevel', 'Save globally or project level?'),
+      localize('layout.saveLevel.globally', 'Globally'), localize('layout.saveLevel.project', 'Project'));
     if (request === undefined) {
       return;
     }
-    await preferences.setSkipTests(result === 'Yes', request === 'Globally');
+    await preferences.setSkipTests(result === localize('layout.yes', 'Yes'), request === localize('layout.saveLevel.globally', 'Globally'));
   }));
 
   context.subscriptions.push(vscode.commands.registerCommand('wpilibcore.setOnline', async () => {
     const preferencesApi = externalApi.getPreferencesAPI();
     const workspace = await preferencesApi.getFirstOrSelectedWorkspace();
     if (workspace === undefined) {
-      vscode.window.showInformationMessage('Cannot set online in an empty workspace');
+      vscode.window.showInformationMessage(localize('message.emptyWorkspace.set', 'Cannot set online in an empty workspace'));
       return;
     }
 
-    const result = await vscode.window.showInformationMessage('Run commands in Online mode?', 'Yes', 'No');
+    const result = await vscode.window.showInformationMessage(
+      localize('message.setOnline.confirm', 'Run commands in Online mode?'),
+      localize('layout.yes', 'Yes'), localize('layout.no', 'No'));
     if (result === undefined) {
       console.log('Invalid selection for settting online');
       return;
     }
     const preferences = preferencesApi.getPreferences(workspace);
-    const request = await vscode.window.showInformationMessage('Save globally or project level?', 'Globally', 'Project');
+    const request = await vscode.window.showInformationMessage(
+      localize('message.ask.saveLevel', 'Save globally or project level?'),
+      localize('layout.saveLevel.globally', 'Globally'), localize('layout.saveLevel.project', 'Project'));
     if (request === undefined) {
       return;
     }
-    await preferences.setOnline(result === 'Yes', request === 'Globally');
+    await preferences.setOnline(result === localize('layout.yes', 'Yes'), request === localize('layout.saveLevel.globally', 'Globally'));
   }));
 
   context.subscriptions.push(vscode.commands.registerCommand('wpilibcore.setStopSimulationOnEntry', async () => {
@@ -181,59 +201,72 @@ export function createVsCommands(context: vscode.ExtensionContext, externalApi: 
       return;
     }
 
-    const result = await vscode.window.showInformationMessage('Stop simulation debugging on entry?', 'Yes', 'No');
+    const result = await vscode.window.showInformationMessage(
+      localize('message.stopSimDebugOnEntry.confirm', 'Stop simulation debugging on entry?'),
+      localize('layout.yes', 'Yes'), localize('layout.no', 'No'));
     if (result === undefined) {
       console.log('Invalid selection for settting stop simulation on entry');
       return;
     }
     const preferences = preferencesApi.getPreferences(workspace);
-    const request = await vscode.window.showInformationMessage('Save globally or project level?', 'Globally', 'Project');
+    const request = await vscode.window.showInformationMessage(
+      localize('message.ask.saveLevel', 'Save globally or project level?'),
+      localize('layout.saveLevel.globally', 'Globally'), localize('layout.saveLevel.project', 'Project'));
     if (request === undefined) {
       return;
     }
-    await preferences.setStopSimulationOnEntry(result === 'Yes', request === 'Globally');
+    await preferences.setStopSimulationOnEntry(
+      result === localize('layout.yes', 'Yes'), request === localize('layout.saveLevel.globally', 'Globally'));
   }));
 
   context.subscriptions.push(vscode.commands.registerCommand('wpilibcore.setAutoSave', async () => {
     const preferencesApi = externalApi.getPreferencesAPI();
     const workspace = await preferencesApi.getFirstOrSelectedWorkspace();
     if (workspace === undefined) {
-      vscode.window.showInformationMessage('Cannot set team number in an empty workspace');
+      vscode.window.showInformationMessage(localize('message.emptyWorkspace.set', 'Cannot set auto save in an empty workspace.'));
       return;
     }
 
-    const result = await vscode.window.showInformationMessage('Automatically save on deploy?', 'Yes', 'No');
+    const result = await vscode.window.showInformationMessage(
+      localize('message.autoSaveOnDeploy.confirm', 'Automatically save on deploy?'),
+      localize('layout.yes', 'Yes'), localize('layout.no', 'No'));
     if (result === undefined) {
       console.log('failed to set automatically save on deploy');
       return;
     }
     const preferences = preferencesApi.getPreferences(workspace);
-    const request = await vscode.window.showInformationMessage('Save globally or project level?', 'Globally', 'Project');
+    const request = await vscode.window.showInformationMessage(
+      localize('message.ask.saveLevel', 'Save globally or project level?'),
+      localize('layout.saveLevel.globally', 'Globally'), localize('layout.saveLevel.project', 'Project'));
     if (request === undefined) {
       return;
     }
-    await preferences.setAutoSaveOnDeploy(result === 'Yes', request === 'Globally');
+    await preferences.setAutoSaveOnDeploy(result === localize('layout.yes', 'Yes'), request === localize('layout.saveLevel.globally', 'Globally'));
   }));
 
   context.subscriptions.push(vscode.commands.registerCommand('wpilibcore.setStartRioLog', async () => {
     const preferencesApi = externalApi.getPreferencesAPI();
     const workspace = await preferencesApi.getFirstOrSelectedWorkspace();
     if (workspace === undefined) {
-      vscode.window.showInformationMessage('Cannot set team number in an empty workspace');
+      vscode.window.showInformationMessage(localize('message.emptyWorkspace.set', 'Cannot set start RioLog in an empty workspace.'));
       return;
     }
 
-    const result = await vscode.window.showInformationMessage('Automatically start RioLog on deploy?', 'Yes', 'No');
+    const result = await vscode.window.showInformationMessage(
+      localize('message.startRioLogOnDeploy.confirm', 'Automatically start RioLog on deploy?'),
+      localize('layout.yes', 'Yes'), localize('layout.no', 'No'));
     if (result === undefined) {
       console.log('Invalid selection for riolog on deploy');
       return;
     }
     const preferences = preferencesApi.getPreferences(workspace);
-    const request = await vscode.window.showInformationMessage('Save globally or project level?', 'Globally', 'Project');
+    const request = await vscode.window.showInformationMessage(
+      localize('message.ask.saveLevel', 'Save globally or project level?'),
+      localize('layout.saveLevel.globally', 'Globally'), localize('layout.saveLevel.project', 'Project'));
     if (request === undefined) {
       return;
     }
-    await preferences.setAutoStartRioLog(result === 'Yes', request === 'Globally');
+    await preferences.setAutoStartRioLog(result === localize('layout.yes', 'Yes'), request === localize('layout.saveLevel.globally', 'Globally'));
   }));
 
   context.subscriptions.push(vscode.commands.registerCommand('wpilibcore.cancelTasks', async () => {
