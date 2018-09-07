@@ -5,6 +5,10 @@ import * as vscode from 'vscode';
 import { IPreferences } from 'vscode-wpilibapi';
 import { promisifyExists, promisifyMkDir, promisifyReadFile, promisifyWriteFile } from './utilities';
 
+import * as nls from 'vscode-nls';
+import nlsConfig from './nls';
+const localize = nls.config(nlsConfig)();
+
 export interface IPreferencesJson {
   currentLanguage: string;
   teamNumber: number;
@@ -17,11 +21,11 @@ const defaultPreferences: IPreferencesJson = {
 
 export async function requestTeamNumber(): Promise<number> {
   const teamNumber = await vscode.window.showInputBox({
-    prompt: 'Enter your team number',
+    prompt: localize('prompt.enterTeamNumber', 'Enter your team number'),
     validateInput: (v) => {
       const match = v.match(/^\d{1,5}$/gm);
       if (match === null || match.length === 0) {
-        return 'Invalid team number';
+        return localize('message.invalidTeamNumber', 'Invalid team number');
       }
       return undefined;
     },
@@ -245,12 +249,14 @@ export class Preferences implements IPreferences {
 
   private async noTeamNumberLogic(): Promise<number> {
     // Ask if user wants to set team number.
-    const teamRequest = await vscode.window.showInformationMessage('No team number, would you like to save one?', 'Yes', 'No');
+    const teamRequest = await vscode.window.showInformationMessage(
+      localize('message.noTeamNumberAddOne', 'No team number, would you like to save one?'),
+      localize('layout.yes', 'Yes'), localize('layout.no', 'No'));
     if (teamRequest === undefined) {
       return -1;
     }
     const teamNumber = await requestTeamNumber();
-    if (teamRequest === 'No') {
+    if (teamRequest === localize('layout.no', 'No')) {
       return teamNumber;
     } else if (teamNumber !== -1) {
       await this.setTeamNumber(teamNumber);

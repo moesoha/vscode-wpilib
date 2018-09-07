@@ -1,0 +1,7 @@
+{
+	"prompt.enterTeamNumber": "请输入队号",
+	"message.invalidTeamNumber": "队号格式不正确",
+	"message.noTeamNumberAddOne": "没有找到队号，你要现在添加一个吗？",
+	"layout.yes": "好",
+	"layout.no": "不用"
+}

@@ -1,18 +1,12 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import * as nls from 'vscode-nls';
 import { IExternalAPI } from 'vscode-wpilibapi';
 import { requestTeamNumber } from './preferences';
 
-interface IEnvNlsConfig {
-  locale: string;
-}
-const envNlsConfig: IEnvNlsConfig | null = process.env.VSCODE_NLS_CONFIG ? JSON.parse(process.env.VSCODE_NLS_CONFIG) as IEnvNlsConfig : null;
-const localize = nls.config({
-  locale: envNlsConfig ? envNlsConfig.locale : undefined,
-  messageFormat: nls.MessageFormat.both,
-})();
+import * as nls from 'vscode-nls';
+import nlsConfig from './nls';
+const localize = nls.config(nlsConfig)();
 
 // Most of our commands are created here.
 // To create a command, use vscode.commands.registerCommand with the name of the command
