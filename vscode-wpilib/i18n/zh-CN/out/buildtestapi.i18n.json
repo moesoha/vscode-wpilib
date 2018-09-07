@@ -1,0 +1,6 @@
+{
+	"layout.pickLanguage": "选择一个语言",
+	"message.noBuilder": "没有找到 builder", // TODO: how to translate???
+	"message.noDeployer": "没有找到 deployer", // TODO: how to translate???
+	"message.invalidSelection": "没有正确作出选择，操作取消。"
+}

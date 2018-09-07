@@ -2,6 +2,10 @@
 import * as vscode from 'vscode';
 import { ICommandAPI, ICommandCreator } from 'vscode-wpilibapi';
 
+import * as nls from 'vscode-nls';
+import nlsConfig from './nls';
+const localize = nls.config(nlsConfig)();
+
 interface ICreatorQuickPick extends vscode.QuickPickItem {
   creator: ICommandCreator;
 }
@@ -27,7 +31,7 @@ export class CommandAPI implements ICommandAPI {
       // Not found
       lp = {
         creators: [],
-        description: 'Choice of language',
+        description: localize('layout.languageChoice', 'Choice of language'),
         label: provider.getLanguage(),
       };
       this.creators.push(lp);
@@ -41,7 +45,7 @@ export class CommandAPI implements ICommandAPI {
   }
   public async createCommand(workspace: vscode.WorkspaceFolder, folder: vscode.Uri): Promise<boolean> {
     if (this.creators.length === 0) {
-      await vscode.window.showInformationMessage('No command providers found');
+      await vscode.window.showInformationMessage(localize('message.noCommandProvider', 'No command providers found'));
       return false;
     }
 
@@ -63,7 +67,7 @@ export class CommandAPI implements ICommandAPI {
           // Not found
           lp = {
             creators: [],
-            description: 'Choice of language',
+            description: localize('layout.languageChoice', 'Choice of language'),
             label: language,
           };
           validLanguages.push(lp);
@@ -76,22 +80,22 @@ export class CommandAPI implements ICommandAPI {
     let langSelection: ILanguageQuickPick;
 
     if (validLanguages.length <= 0) {
-      vscode.window.showInformationMessage('No available command creators');
+      vscode.window.showInformationMessage(localize('message.noCommandCreator', 'No available command creators'));
       return false;
     } else if (validLanguages.length === 1) {
       langSelection = validLanguages[0];
     } else {
-      const lSelect = await vscode.window.showQuickPick(validLanguages, { placeHolder: 'Pick a language' });
+      const lSelect = await vscode.window.showQuickPick(validLanguages, { placeHolder: localize('layout.pickLanguage', 'Pick a language') });
       if (lSelect === undefined) {
-        await vscode.window.showInformationMessage('Selection exited. Cancelling');
+        await vscode.window.showInformationMessage(localize('message.invalidSelection', 'Selection exited. Cancelling'));
         return false;
       }
       langSelection = lSelect;
     }
 
-    const selection = await vscode.window.showQuickPick(langSelection.creators, { placeHolder: `Pick a command}` });
+    const selection = await vscode.window.showQuickPick(langSelection.creators, { placeHolder: localize('layout.pickCommand', 'Pick a command') });
     if (selection === undefined) {
-      await vscode.window.showInformationMessage('Invalid selection');
+      await vscode.window.showInformationMessage(localize('message.invalidSelection', 'Invalid selection'));
       return false;
     }
 

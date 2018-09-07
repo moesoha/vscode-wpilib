@@ -1,0 +1,8 @@
+{
+	"message.invalidSelection": "没有正确作出选择，操作取消。",
+	"message.noCommandCreator": "找不到可以创建的语言种类。",
+	"message.noCommandProvider": "找不到可以创建的命令种类。",
+	"layout.languageChoice": "可供选择的语言",
+	"layout.pickLanguage": "选择一种语言",
+	"layout.pickCommand": "选择一个命令"
+}

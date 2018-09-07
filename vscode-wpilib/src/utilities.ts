@@ -6,6 +6,10 @@ import * as vscode from 'vscode';
 import { IExecuteAPI, IPreferences } from 'vscode-wpilibapi';
 import { setExecutePermissions } from './shared/permissions';
 
+import * as nls from 'vscode-nls';
+import nlsConfig from './nls';
+const localize = nls.config(nlsConfig)();
+
 // General utilites usable by multiple classes
 
 export function getIsWindows(): boolean {
@@ -14,13 +18,13 @@ export function getIsWindows(): boolean {
 }
 
 export async function getClassName(): Promise<string | undefined> {
-  const promptString = 'Please enter a class name';
+  const promptString = localize('prompt.className', 'Please enter a class name');
   const className = await vscode.window.showInputBox({
     prompt: promptString,
     validateInput: (s) => {
       const match = s.match('^([a-zA-Z_]{1}[a-zA-Z0-9_]*)$');
       if (match === null || match.length === 0) {
-        return 'Invalid Classname';
+        return localize('message.invalid.className', 'Invalid Classname');
       }
       return undefined;
     },
@@ -29,14 +33,14 @@ export async function getClassName(): Promise<string | undefined> {
 }
 
 export async function getPackageName(): Promise<string | undefined> {
-  const promptString = 'Please enter a package name';
+  const promptString = localize('prompt.packageName', 'Please enter a package name');
   const packageName = await vscode.window.showInputBox({
     prompt: promptString,
     validateInput: (s) => {
       const match = s.match('^([a-zA-Z_]{1}[a-zA-Z0-9_]*(\\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$');
 
       if (match === null || match.length === 0) {
-        return 'Invalid Package Name';
+        return localize('message.invalid.packageName', 'Invalid Package Name');
       }
 
       return undefined;

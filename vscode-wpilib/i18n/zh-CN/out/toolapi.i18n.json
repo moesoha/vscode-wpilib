@@ -1,0 +1,6 @@
+{
+	"message.noTool": "没有找到任何工具，安装一些吧。",
+	"message.toolRunCancelled": "已放弃运行工具",
+	"message.toolRunFailed": "启动工具 {0} 失败",
+	"layout.pickTool": "选择一个工具"
+}

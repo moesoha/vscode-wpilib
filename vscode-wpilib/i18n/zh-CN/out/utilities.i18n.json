@@ -1,0 +1,6 @@
+{
+	"prompt.className": "请输入类名",
+	"prompt.packageName": "请输入包名",
+	"message.invalid.className": "非法类名",
+	"message.invalid.packageName": "非法包名"
+}

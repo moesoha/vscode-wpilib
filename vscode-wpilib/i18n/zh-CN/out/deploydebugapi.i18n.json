@@ -1,0 +1,8 @@
+{
+	"message.noBuilder": "没有找到 builder", // TODO: how to translate???
+	"message.noDeployer": "没有找到 deployer", // TODO: how to translate???
+	"message.invalidSelection": "没有正确作出选择，操作取消。",
+	"message.disableInTest": "这个功能在测试阶段被禁用。",
+	"message.unknownError": "发生了一个未知错误，请通过输出窗口或者控制台得到更多信息。",
+	"layout.pickLanguage": "选择一个语言"
+}

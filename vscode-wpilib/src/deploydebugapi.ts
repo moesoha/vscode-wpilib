@@ -5,6 +5,10 @@ import { RioLogWindow } from 'wpilib-riolog';
 import { PreferencesAPI } from './preferencesapi';
 import { LiveRioConsoleProvider, RioLogWebviewProvider } from './riolog/vscodeimpl';
 
+import * as nls from 'vscode-nls';
+import nlsConfig from './nls';
+const localize = nls.config(nlsConfig)();
+
 interface ICodeDeployerQuickPick extends vscode.QuickPickItem {
   deployer: ICodeDeployer;
 }
@@ -33,7 +37,7 @@ class WPILibDebugConfigurationProvider implements vscode.DebugConfigurationProvi
     }
 
     if (desktop) {
-      vscode.window.showInformationMessage('This functionality is disabled for the Alpha test.');
+      vscode.window.showInformationMessage(localize('message.disableInTest', 'This functionality is disabled for the Alpha test.'));
       return undefined;
     }
 
@@ -164,7 +168,7 @@ export class DeployDebugAPI implements IDeployDebugAPI {
   private async deployCommon(workspace: vscode.WorkspaceFolder, deployer: ICodeDeployerQuickPick[],
                              debug: boolean, desktop: boolean, source: vscode.Uri | undefined): Promise<boolean> {
     if (deployer.length <= 0) {
-      vscode.window.showInformationMessage('No registered deployers');
+      vscode.window.showInformationMessage(localize('message.noDeployer', 'No registered deployers'));
       return false;
     }
 
@@ -180,14 +184,14 @@ export class DeployDebugAPI implements IDeployDebugAPI {
     let langSelection: ICodeDeployerQuickPick;
 
     if (validDeployers.length <= 0) {
-      vscode.window.showInformationMessage('No available deployers');
+      vscode.window.showInformationMessage(localize('message.noDeployer', 'No available deployers'));
       return false;
     } else if (validDeployers.length === 1) {
       langSelection = validDeployers[0];
     } else {
-      const selection = await vscode.window.showQuickPick(validDeployers, { placeHolder: 'Pick a language' });
+      const selection = await vscode.window.showQuickPick(validDeployers, { placeHolder: localize('layout.pickLanguage', 'Pick a language') });
       if (selection === undefined) {
-        await vscode.window.showInformationMessage('Selection exited. Cancelling');
+        await vscode.window.showInformationMessage(localize('message.invalidSelection', 'Selection exited. Cancelling'));
         return false;
       }
       langSelection = selection;
@@ -204,7 +208,8 @@ export class DeployDebugAPI implements IDeployDebugAPI {
       }
       return true;
     } catch (err) {
-      await vscode.window.showErrorMessage('Unknown error occured. See output window or console log for more information.');
+      await vscode.window.showErrorMessage(
+        localize('message,unknownError', 'Unknown error occured. See output window or console log for more information.'));
       console.log(err);
       return false;
     }

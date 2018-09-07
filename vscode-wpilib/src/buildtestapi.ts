@@ -4,6 +4,10 @@ import * as vscode from 'vscode';
 import { IBuildTestAPI, ICodeBuilder } from 'vscode-wpilibapi';
 import { PreferencesAPI } from './preferencesapi';
 
+import * as nls from 'vscode-nls';
+import nlsConfig from './nls';
+const localize = nls.config(nlsConfig)();
+
 interface ICodeBuilderQuickPick extends vscode.QuickPickItem {
   builder: ICodeBuilder;
 }
@@ -61,7 +65,7 @@ export class BuildTestAPI implements IBuildTestAPI {
   private async buildTestCommon(workspace: vscode.WorkspaceFolder, builder: ICodeBuilderQuickPick[],
                                 source: vscode.Uri | undefined): Promise<boolean> {
     if (builder.length <= 0) {
-      vscode.window.showInformationMessage('No registered deployers');
+      vscode.window.showInformationMessage(localize('message.noDeployer', 'No registered deployers'));
       return false;
     }
 
@@ -77,14 +81,14 @@ export class BuildTestAPI implements IBuildTestAPI {
     let langSelection: ICodeBuilderQuickPick;
 
     if (validBuilders.length <= 0) {
-      vscode.window.showInformationMessage('No available builders');
+      vscode.window.showInformationMessage(localize('message.noBuilder', 'No available builders'));
       return false;
     } else if (validBuilders.length === 1) {
       langSelection = validBuilders[0];
     } else {
-      const selection = await vscode.window.showQuickPick(validBuilders, { placeHolder: 'Pick a language' });
+      const selection = await vscode.window.showQuickPick(validBuilders, { placeHolder: localize('layout.pickLanguage', 'Pick a language') });
       if (selection === undefined) {
-        await vscode.window.showInformationMessage('Selection exited. Cancelling');
+        await vscode.window.showInformationMessage(localize('message.invalidSelection', 'Selection exited. Cancelling'));
         return false;
       }
       langSelection = selection;

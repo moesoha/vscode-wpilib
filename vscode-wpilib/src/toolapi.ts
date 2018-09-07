@@ -2,6 +2,10 @@
 import * as vscode from 'vscode';
 import { IToolAPI, IToolRunner } from 'vscode-wpilibapi';
 
+import * as nls from 'vscode-nls';
+import nlsConfig from './nls';
+const localize = nls.config(nlsConfig)();
+
 interface IToolQuickPick extends vscode.QuickPickItem {
   runner: IToolRunner;
 }
@@ -13,20 +17,20 @@ export class ToolAPI implements IToolAPI {
 
   public async startTool(): Promise<boolean> {
     if (this.tools.length <= 0) {
-      vscode.window.showErrorMessage('No tools found. Please install some');
+      vscode.window.showErrorMessage(localize('message.noTool', 'No tools found. Please install some.'));
       return false;
     }
 
-    const result = await vscode.window.showQuickPick(this.tools, { placeHolder: 'Pick a tool' });
+    const result = await vscode.window.showQuickPick(this.tools, { placeHolder: localize('layout.pickTool', 'Pick a tool') });
 
     if (result === undefined) {
-      vscode.window.showInformationMessage('Tool run canceled');
+      vscode.window.showInformationMessage(localize('message.toolRunCancelled', 'Tool run canceled.'));
       return false;
     }
 
     const ret =  result.runner.runTool();
     if (!ret) {
-      await vscode.window.showInformationMessage(`Failed to start tool: ${result.runner.getDisplayName()}`);
+      await vscode.window.showInformationMessage(localize('message.toolRunFailed', 'Failed to start tool: {0}', result.runner.getDisplayName()));
     }
     return ret;
   }

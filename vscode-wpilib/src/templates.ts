@@ -6,6 +6,10 @@ import * as vscode from 'vscode';
 import { IExampleTemplateAPI, IExampleTemplateCreator } from 'vscode-wpilibapi';
 import { generateCopyCpp, generateCopyJava } from './shared/generator';
 
+import * as nls from 'vscode-nls';
+import nlsConfig from './nls';
+const localize = nls.config(nlsConfig)();
+
 export interface ITemplateJsonLayout {
   name: string;
   description: string;
@@ -43,13 +47,13 @@ export class Templates {
               if (java) {
                 if (!await generateCopyJava(path.join(templatesFolder, e.foldername),
                   path.join(gradleBasePath, e.gradlebase), folderInto.fsPath, 'frc.robot.Robot', path.join('frc', 'robot'))) {
-                  await vscode.window.showErrorMessage('Cannot create into non empty folder');
+                  await vscode.window.showErrorMessage(localize('message.cannotCreateNonEmptyFolder', 'Cannot create into non empty folder.'));
                   return false;
                 }
               } else {
                 if (!await generateCopyCpp(path.join(templatesFolder, e.foldername),
                   path.join(gradleBasePath, e.gradlebase), folderInto.fsPath, false)) {
-                  await vscode.window.showErrorMessage('Cannot create into non empty folder');
+                  await vscode.window.showErrorMessage(localize('message.cannotCreateNonEmptyFolder', 'Cannot create into non empty folder.'));
                   return false;
                 }
               }

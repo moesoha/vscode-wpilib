@@ -7,6 +7,10 @@ import { IPreferencesJson } from './preferences';
 import { promisifyMkdirp } from './shared/generator';
 import { promisifyReadFile, promisifyWriteFile } from './utilities';
 
+import * as nls from 'vscode-nls';
+import nlsConfig from './nls';
+const localize = nls.config(nlsConfig)();
+
 interface ICreatorQuickPick extends vscode.QuickPickItem {
   creator: IExampleTemplateCreator;
 }
@@ -116,13 +120,15 @@ export class ExampleTemplateAPI implements IExampleTemplateAPI {
     parsed.teamNumber = teamNumber;
     await promisifyWriteFile(jsonFilePath, JSON.stringify(parsed, null, 4));
 
-    const openSelection = await vscode.window.showInformationMessage('Would you like to open the folder?',
-      'Yes (Current Window)', 'Yes (New Window)', 'No');
+    const openSelection = await vscode.window.showInformationMessage(
+      localize('message.openFolder.ask', 'Would you like to open the folder?'),
+      localize('layout.yes.currentWindow', 'Yes (Current Window)'), localize('layout.yes.newWindow', 'Yes (New Window)'),
+      localize('layout.no', 'No'));
     if (openSelection === undefined) {
       return true;
-    } else if (openSelection === 'Yes (Current Window)') {
+    } else if (openSelection === localize('layout.yes.currentWindow', 'Yes (Current Window)')) {
       await vscode.commands.executeCommand('vscode.openFolder', toFolderUri, false);
-    } else if (openSelection === 'Yes (New Window)') {
+    } else if (openSelection === localize('layout.yes.newWindow', 'Yes (New Window)')) {
       await vscode.commands.executeCommand('vscode.openFolder', toFolderUri, true);
     } else {
       return true;
