@@ -1,0 +1,27 @@
+{
+	"message.disableInTest": "这个功能在测试阶段被禁用。",
+	"message.emptyWorkspace.set": "不能在非项目中设置此项目。", // Use this for `set*` only to make things simpler
+	"message.emptyWorkspace.setStartRioLog": "不能在非项目中设置部署时自动启动 RioLog。",
+	"message.emptyWorkspace.setTeamNumber": "不能在非项目中设置队号。",
+	"message.emptyWorkspace.setOnline": "不能在非项目中设置在线模式。",
+	"message.emptyWorkspace.setLanguage": "不能在非项目中设置编程语言。",
+	"message.emptyWorkspace.setAutoSave": "不能在非项目中设置部署时自动保存。",
+	"message.emptyWorkspace.setSkipTest": "不能在非项目中设置是否跳过测试。",
+	"message.emptyWorkspace.deployCode": "不能在非项目中执行部署工作。",
+	"message.emptyWorkspace.debugCode": "不能在非项目中调试代码。",
+	"message.emptyWorkspace.buildCode": "不能在非项目中编译。",
+	"message.emptyWorkspace.createCommand": "不能在非项目中创建命令类。",
+	"message.createCommand.noFolder": "必须选择一个文件夹才能创建命令类！",
+	"message.noLanguageAvailableToAdd": "没有可以添加的语言。",
+	"message.skipTest.confirm": "要跳过在部署前的测试吗？",
+	"message.setOnline.confirm": "要在在线模式中运行命令吗？",
+	"message.stopSimDebugOnEntry.confirm": "要在进入时自动停止仿真调试吗？",
+	"message.autoSaveOnDeploy.confirm": "要在部署时自动保存源码吗？",
+	"message.startRioLogOnDeploy.confirm": "要在部署时自动启动 RioLog 吗？",
+	"message.ask.saveLevel": "你想把这个设置应用在哪里？",
+	"layout.saveLevel.globally": "所有项目",
+	"layout.saveLevel.project": "仅当前项目",
+	"layout.yes": "要",
+	"layout.no": "不要",
+	"layout.pickLanguage": "选择一种语言"
+}
