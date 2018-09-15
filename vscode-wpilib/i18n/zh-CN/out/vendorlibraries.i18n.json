@@ -1,0 +1,18 @@
+// translation of `vendor`?
+{
+	"option.manageCurrentLibraries": "管理当前安装的依赖",
+	"option.checkUpdate.offline": "检查更新 (离线)",
+	"option.checkUpdate.online": "检查更新",
+	"option.installLibrary.offline": "安装依赖 (离线)",
+	"option.installLibrary.online": "安装依赖",
+	"message.noDependenciesInstalled": "没有安装过任何依赖。",
+	"message.noNewDependenciesAvailable": "没有需要安装的依赖。",
+	"message.noUpdatesAvailable": "没有可用的更新。",
+	"message.alreadyInstalledLibrary": "这个依赖已经安装过了。",
+	"layout.checkToUninstall": "选择需要删除的依赖",
+	"layout.checkToInstall": "选择需要安装的依赖",
+	"layout.checkToUpdate": "选择需要更新的依赖",
+	"layout.enterVendorURL": "输入依赖的 URL (get from vendor)", // 翻不动了
+	"layout.oldVersion": " (老版本: {0})",
+	"layout.selectAnOption": "选择一个选项"
+}

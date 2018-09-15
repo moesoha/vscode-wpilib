@@ -9,6 +9,10 @@ import { logger } from './logger';
 import { promisifyReadDir } from './shared/generator';
 import { promisifyExists, promisifyReadFile, promisifyWriteFile } from './utilities';
 
+import * as nls from 'vscode-nls';
+import nlsConfig from './nls';
+const localize = nls.config(nlsConfig)();
+
 function getGradleRioRegex() {
   return /(id\s*?[\"|\']edu\.wpi\.first\.GradleRIO[\"|\'].*?version\s*?[\"|\'])(.+?)([\"|\'])/g;
 }
@@ -34,11 +38,12 @@ export class WPILibUpdates {
     const newVersion = await this.checkForGradleRIOUpdate(grVersion);
     if (newVersion === undefined) {
       logger.log('no update found');
-      await vscode.window.showInformationMessage('No GradleRIO Update Found');
+      await vscode.window.showInformationMessage(localize('message.notFoundGradleRIOUpdate', 'No GradleRIO Update Found'));
     } else {
-      const result = await vscode.window.showInformationMessage
-                           (`GradleRIO update (${newVersion}) found, would you like to install it?`, 'Yes', 'No');
-      if (result !== undefined && result === 'Yes') {
+      const result = await vscode.window.showInformationMessage(
+        localize('message.foundNewGradleRIO', 'GradleRIO update ({0}) found, would you like to install it?', newVersion),
+        localize('layout.yes', 'Yes'), localize('layout.no', 'No'));
+      if (result !== undefined && result === localize('layout.yes', 'Yes')) {
         await this.setGradleRIOVersion(newVersion);
       }
     }
@@ -72,10 +77,12 @@ export class WPILibUpdates {
   }
 
   private async checkForGradleRIOUpdate(currentVersion: string): Promise<string | undefined> {
-    const qResult = await vscode.window.showInformationMessage('Check offline or online?', 'Online', 'Offline');
+    const qResult = await vscode.window.showInformationMessage(
+      localize('message.howToCheckUpdate', 'Check offline or online?'),
+      localize('layout.check.online', 'Online'), localize('layout.check.offline', 'Offline'));
     if (qResult === undefined) {
       return undefined;
-    } else if (qResult === 'Online') {
+    } else if (qResult === localize('layout.check.online', 'Online')) {
       return this.checkForRemoteGradleRIOUpdate(currentVersion);
     } else {
       return this.checkForLocalGradleRIOUpdate(currentVersion);

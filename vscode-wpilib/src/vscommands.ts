@@ -274,12 +274,14 @@ export function createVsCommands(context: vscode.ExtensionContext, externalApi: 
     if (javaHome === '') {
       return;
     }
-    const selection = await vscode.window.showInformationMessage('Set in project or globally?', 'Project', 'Global');
+    const selection = await vscode.window.showInformationMessage(
+      localize('message.ask.saveLevel', 'Save globally or project level?'),
+      localize('layout.saveLevel.globally', 'Globally'), localize('layout.saveLevel.project', 'Project'));
     if (selection !== undefined) {
-      if (selection === 'Project') {
+      if (selection === localize('layout.saveLevel.project', 'Project')) {
         const wp = await externalApi.getPreferencesAPI().getFirstOrSelectedWorkspace();
         if (wp === undefined) {
-          vscode.window.showInformationMessage('Cannot set java on empty workspace');
+          vscode.window.showInformationMessage(localize('message.emptyWorkspace.setJavaHome', 'Cannot set java on empty workspace'));
           return;
         }
         const javaConfig = vscode.workspace.getConfiguration('java', wp.uri);
@@ -295,7 +297,8 @@ export function createVsCommands(context: vscode.ExtensionContext, externalApi: 
     const preferencesApi = externalApi.getPreferencesAPI();
     const workspace = await preferencesApi.getFirstOrSelectedWorkspace();
     if (workspace === undefined) {
-      vscode.window.showInformationMessage('Cannot install gradle tools with an empty workspace');
+      vscode.window.showInformationMessage(
+        localize('message.emptyWorkspace.installGradleTools', 'Cannot install gradle tools with an empty workspace'));
       return;
     }
     await ToolAPI.InstallToolsFromGradle(workspace, externalApi);

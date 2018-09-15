@@ -7,6 +7,10 @@ import { IExternalAPI } from 'vscode-wpilibapi';
 import { promisifyMkdirp, promisifyReadDir } from './shared/generator';
 import { promisifyDeleteFile, promisifyExists, promisifyReadFile, promisifyWriteFile } from './utilities';
 
+import * as nls from 'vscode-nls';
+import nlsConfig from './nls';
+const localize = nls.config(nlsConfig)();
+
 interface IJsonDependency {
   name: string;
   version: string;
@@ -34,7 +38,7 @@ class LibraryQuickPick implements vscode.QuickPickItem {
     this.label = dep.name;
     this.description = dep.version;
     if (oldVersion !== undefined) {
-      this.description += ` (Old Version: ${oldVersion})`;
+      this.description += localize('layout.oldVersion', ' (Old version: {0})');
     }
     this.dep = dep;
   }
@@ -82,24 +86,24 @@ export class VendorLibraries {
 
     const qpArr: OptionQuickPick[] = [];
 
-    qpArr.push(new OptionQuickPick('Manage current libraries', async (wp) => {
+    qpArr.push(new OptionQuickPick(localize('option.manageCurrentLibraries', 'Manage current libraries'), async (wp) => {
       await this.manageCurrentLibraries(wp);
     }));
-    qpArr.push(new OptionQuickPick('Check for updates (offline)', async (wp) => {
+    qpArr.push(new OptionQuickPick(localize('option.checkUpdate.offline', 'Check for updates (offline)'), async (wp) => {
       await this.offlineUpdates(wp);
     }));
-    qpArr.push(new OptionQuickPick('Check for updates (online)', async (wp) => {
+    qpArr.push(new OptionQuickPick(localize('option.checkUpdate.online', 'Check for updates (online)'), async (wp) => {
       await this.onlineUpdates(wp);
     }));
-    qpArr.push(new OptionQuickPick('Install new libraries (offline)', async (wp) => {
+    qpArr.push(new OptionQuickPick(localize('option.installLibrary.offline', 'Install new library (offline)'), async (wp) => {
       await this.offlineNew(wp);
     }));
-    qpArr.push(new OptionQuickPick('Install new library (online)', async (wp) => {
+    qpArr.push(new OptionQuickPick(localize('option.installLibrary.online', 'Install new library (online)'), async (wp) => {
       await this.onlineNew(wp);
     }));
 
     const result = await vscode.window.showQuickPick(qpArr, {
-      placeHolder: 'Select an option',
+      placeHolder: localize('layout.selectAnOption', 'Select an option'),
     });
 
     if (result) {
@@ -116,7 +120,7 @@ export class VendorLibraries {
       });
       const toRemove = await vscode.window.showQuickPick(arr, {
         canPickMany: true,
-        placeHolder: 'Check to uninstall',
+        placeHolder: localize('layout.checkToUninstall', 'Check to uninstall'),
       });
 
       if (toRemove !== undefined) {
@@ -135,7 +139,7 @@ export class VendorLibraries {
         }
       }
     } else {
-      await vscode.window.showInformationMessage('No dependencies installed');
+      await vscode.window.showInformationMessage(localize('message.noDependenciesInstalled', 'No dependencies installed'));
     }
   }
 
@@ -159,7 +163,7 @@ export class VendorLibraries {
       if (updatableDeps.length !== 0) {
         const toUpdate = await vscode.window.showQuickPick(updatableDeps, {
           canPickMany: true,
-          placeHolder: 'Check to update',
+          placeHolder: localize('layout.checkToUpdate', 'Check to update'),
         });
 
         if (toUpdate !== undefined) {
@@ -168,10 +172,10 @@ export class VendorLibraries {
           }
         }
       } else {
-        await vscode.window.showInformationMessage('No updates available');
+        await vscode.window.showInformationMessage(localize('message.noUpdatesAvailable', 'No updates available'));
       }
     } else {
-      await vscode.window.showInformationMessage('No dependencies installed');
+      await vscode.window.showInformationMessage(localize('message.noDependenciesInstalled', 'No dependencies installed'));
     }
   }
 
@@ -198,7 +202,7 @@ export class VendorLibraries {
       if (updatable.length !== 0) {
         const toUpdate = await vscode.window.showQuickPick(updatable, {
           canPickMany: true,
-          placeHolder: 'Check to update',
+          placeHolder: localize('layout.checkToUpdate', 'Check to update'),
         });
 
         if (toUpdate !== undefined) {
@@ -207,11 +211,11 @@ export class VendorLibraries {
           }
         }
       } else {
-        await vscode.window.showInformationMessage('No updates available');
+        await vscode.window.showInformationMessage(localize('message.noUpdatesAvailable', 'No updates available'));
       }
 
     } else {
-      await vscode.window.showInformationMessage('No dependencies installed');
+      await vscode.window.showInformationMessage(localize('message.noDependenciesInstalled', 'No dependencies installed'));
     }
   }
 
@@ -236,7 +240,7 @@ export class VendorLibraries {
       if (updatableDeps.length !== 0) {
         const toInstall = await vscode.window.showQuickPick(updatableDeps, {
           canPickMany: true,
-          placeHolder: 'Check to install',
+          placeHolder: localize('layout.checkToInstall', 'Check to install'),
         });
 
         if (toInstall !== undefined) {
@@ -245,18 +249,18 @@ export class VendorLibraries {
           }
         }
       } else {
-        await vscode.window.showInformationMessage('No new dependencies available');
+        await vscode.window.showInformationMessage(localize('message.noNewDependenciesAvailable', 'No new dependencies available'));
       }
     } else {
-      await vscode.window.showInformationMessage('No dependencies installed');
+      await vscode.window.showInformationMessage(localize('message.noDependenciesInstalled', 'No dependencies installed'));
     }
   }
 
   private async onlineNew(workspace: vscode.WorkspaceFolder): Promise<void> {
     const result = await vscode.window.showInputBox({
       ignoreFocusOut: true,
-      placeHolder: 'Enter a vendor file URL (get from vendor)',
-      prompt: 'Enter a vendor file URL (get from vendor)',
+      placeHolder: localize('layout.enterVendorURL', 'Enter a vendor file URL (get from vendor)'),
+      prompt: localize('layout.enterVendorURL', 'Enter a vendor file URL (get from vendor)'),
     });
 
     if (result) {
@@ -267,7 +271,7 @@ export class VendorLibraries {
 
         for (const dep of existing) {
           if (dep.uuid === file.uuid) {
-            await vscode.window.showWarningMessage('Library already installed');
+            await vscode.window.showWarningMessage(localize('message.alreadyInstalledLibrary', 'Library already installed'));
             return;
           }
         }

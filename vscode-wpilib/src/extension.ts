@@ -26,6 +26,10 @@ import { Help } from './webviews/help';
 import { ProjectCreator } from './webviews/projectcreator';
 import { WPILibUpdates } from './wpilibupdates';
 
+import * as nls from 'vscode-nls';
+import nlsConfig from './nls';
+const localize = nls.config(nlsConfig)();
+
 // External API class to implement the IExternalAPI interface
 class ExternalAPI implements IExternalAPI {
   // Create method is used because constructors cannot be async.
@@ -111,7 +115,7 @@ export async function activate(context: vscode.ExtensionContext) {
   if (jdkLoc !== undefined) {
     setJavaHome(jdkLoc);
   } else {
-    await vscode.window.showErrorMessage('Java not found. Might have compilation errors');
+    await vscode.window.showErrorMessage(localize('message.javaNotFound', 'Java not found. Might have compilation errors'));
   }
 
   // Activate the C++ parts of the extension

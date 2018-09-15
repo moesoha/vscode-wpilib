@@ -1,0 +1,9 @@
+{
+	"message.notFoundGradleRIOUpdate": "GradleRIO 已经是最新版了。",
+	"message.foundNewGradleRIO": "GradleRIO 有了新版，{0}。是否立即安装？",
+	"message.howToCheckUpdate": "如何检查新版本？",
+	"layout.check.online": "联网检查",
+	"layout.check.offline": "离线检查",
+	"layout.yes": "是",
+	"layout.no": "否"
+}
