@@ -8,6 +8,10 @@ import { gradleRun, readFileAsync } from '../utilities';
 import { IDebugCommands, startDebugging } from './debug';
 import { ISimulateCommands, startSimulation } from './simulate';
 
+import * as nls from 'vscode-nls';
+import nlsConfig from '../nls';
+const localize = nls.config(nlsConfig)();
+
 interface IJavaDebugInfo {
   debugfile: string;
   project: string;

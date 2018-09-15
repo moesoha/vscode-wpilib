@@ -10,6 +10,10 @@ import { PersistentFolderState } from '../persistentState';
 import { gradleRun, promisifyReadFile } from '../utilities';
 import { IToolChain } from './jsonformats';
 
+import * as nls from 'vscode-nls';
+import nlsConfig from '../nls';
+const localize = nls.config(nlsConfig)();
+
 const isWindows = (process.platform === 'win32');
 
 function hasDriveLetter(pth: string): boolean {

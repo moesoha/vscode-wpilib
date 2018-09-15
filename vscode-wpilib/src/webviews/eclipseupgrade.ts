@@ -9,6 +9,10 @@ import { generateCopyCpp, generateCopyJava, promisifyMkdirp } from '../shared/ge
 import { extensionContext, promisifyExists, promisifyReadFile, promisifyWriteFile } from '../utilities';
 import { WebViewBase } from './webviewbase';
 
+import * as nls from 'vscode-nls';
+import nlsConfig from '../nls';
+const localize = nls.config(nlsConfig)();
+
 // tslint:disable-next-line:no-var-requires
 const javaProperties = require('java-properties');
 

@@ -9,6 +9,10 @@ import { IDebugCommands, startDebugging } from './debug';
 import { IUnixSimulateCommands, startUnixSimulation } from './simulateunix';
 import { IWindowsSimulateCommands, startWindowsSimulation } from './simulatewindows';
 
+import * as nls from 'vscode-nls';
+import nlsConfig from '../nls';
+const localize = nls.config(nlsConfig)();
+
 interface ICppDebugInfo {
   debugfile: string;
   artifact: string;

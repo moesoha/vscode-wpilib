@@ -6,6 +6,10 @@ import { IExampleTemplateAPI } from 'vscode-wpilibapi';
 import { extensionContext } from '../utilities';
 import { WebViewBase } from './webviewbase';
 
+import * as nls from 'vscode-nls';
+import nlsConfig from '../nls';
+const localize = nls.config(nlsConfig)();
+
 interface ISelectorData {
   template: boolean;
   language: string;

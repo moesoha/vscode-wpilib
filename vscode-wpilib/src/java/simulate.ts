@@ -1,6 +1,10 @@
 'use strict';
 import * as vscode from 'vscode';
 
+import * as nls from 'vscode-nls';
+import nlsConfig from '../nls';
+const localize = nls.config(nlsConfig)();
+
 export interface ISimulateCommands {
   extensions: string;
   librarydir: string;

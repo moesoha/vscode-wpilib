@@ -4,6 +4,10 @@
 import { IErrorMessage, IIPCSendMessage, IPrintMessage, MessageType, ReceiveTypes, SendTypes } from 'wpilib-riolog';
 import { checkResize, scrollImpl, sendMessage } from '../script/implscript';
 
+import * as nls from 'vscode-nls';
+import nlsConfig from '../../nls';
+const localize = nls.config(nlsConfig)();
+
 let paused = false;
 export function onPause() {
   const pauseElement = document.getElementById('pause');
