@@ -8,7 +8,7 @@
     "license": "BSD-3-Clause",
     "icon": "wpilib-128.png",
     "engines": {
-        "vscode": "^1.26.0"
+        "vscode": "^1.27.0"
     },
     "categories": [
         "Other"
@@ -16,30 +16,32 @@
     "activationEvents": [
         "workspaceContains:.wpilib/wpilib_preferences.json",
         "workspaceContains:build/vscodeconfig.json",
-        "onCommand:wpilibcore.selectCppToolchain",
-        "onCommand:wpilibcore.refreshCppProperties",
         "onCommand:wpilibcore.startRioLog",
-        "onCommand:wpilibcore.openCommandPalette",
         "onCommand:wpilibcore.setTeamNumber",
         "onCommand:wpilibcore.startTool",
+        "onCommand:wpilibcore.buildCode",
+        "onCommand:wpilibcore.testCode",
         "onCommand:wpilibcore.deployCode",
         "onCommand:wpilibcore.debugCode",
         "onCommand:wpilibcore.simulateCode",
-        "onCommand:wpilibcore.testCode",
-        "onCommand:wpilibcore.buildCode",
-        "onCommand:wpilibcore.createCommand",
         "onCommand:wpilibcore.setLanguage",
+        "onCommand:wpilibcore.setAutoSave",
         "onCommand:wpilibcore.setSkipTests",
         "onCommand:wpilibcore.setOnline",
         "onCommand:wpilibcore.setStopSimulationOnEntry",
-        "onCommand:wpilibcore.setAutoSave",
         "onCommand:wpilibcore.setStartRioLog",
-        "onCommand:wpilibcore.createExample",
-        "onCommand:wpilibcore.createTemplate",
+        "onCommand:wpilibcore.createCommand",
         "onCommand:wpilibcore.cancelTasks",
         "onCommand:wpilibcore.help",
+        "onCommand:wpilibcore.openCommandPalette",
+        "onCommand:wpilibcore.refreshCppProperties",
+        "onCommand:wpilibcore.selectCppToolchain",
         "onCommand:wpilibcore.upgradeEclipseProject",
-        "onCommand:wpilibcore.createNewProject"
+        "onCommand:wpilibcore.createNewProject",
+        "onCommand:wpilibcore.manageVendorLibs",
+        "onCommand:wpilibcore.setJavaHome",
+        "onCommand:wpilibcore.checkForUpdates",
+        "onCommand:wpilibcore.installGradleTools"
     ],
     "main": "./out/extension",
     "contributes": {
@@ -237,6 +239,26 @@
                 "command": "wpilibcore.createNewProject",
                 "title": "%wpilibcore.createNewProject.title%",
                 "category": "WPILib"
+            },
+            {
+                "command": "wpilibcore.manageVendorLibs",
+                "title": "%wpilibcore.manageVendorLibs.title%",
+                "category": "WPILib"
+            },
+            {
+                "command": "wpilibcore.setJavaHome",
+                "title": "%wpilibcore.setJavaHome.title%",
+                "category": "WPILib"
+            },
+            {
+                "command": "wpilibcore.checkForUpdates",
+                "title": "%wpilibcore.checkForUpdates.title%",
+                "category": "WPILib"
+            },
+            {
+                "command": "wpilibcore.installGradleTools",
+                "title": "%wpilibcore.installGradleTools.title%",
+                "category": "WPILib"
             }
         ],
         "keybindings": [
@@ -288,6 +310,11 @@
                     "group": "wpilib"
                 },
                 {
+                    "when": "resourceFilename == build.gradle",
+                    "command": "wpilibcore.manageVendorLibs",
+                    "group": "wpilib"
+                },
+                {
                     "when": "explorerResourceIsFolder && isWPILibProject",
                     "command": "wpilibcore.createCommand",
                     "group": "wpilib"
@@ -298,7 +325,7 @@
     "repository": "https://github.com/wpilibsuite/vscode-wpilib",
     "homepage": "https://github.com/wpilibsuite/vscode-wpilib",
     "scripts": {
-        "vscode:prepublish": "gulp build && npm run compileBundle && npm run lint",
+        "vscode:prepublish": "gulp build update-activation && npm run compileBundle && npm run lint",
         "clean": "gulp clean",
         "compile": "gulp compile",
         "lint": "tslint -c tslint.json -p tsconfig.json",
@@ -307,16 +334,23 @@
         "postinstall": "node ./node_modules/vscode/bin/install",
         "test": "npm run compile && node ./node_modules/vscode/bin/test",
         "gulp": "gulp",
+        "updateActivation": "gulp update-activation",
         "vscePackage": "vsce package"
     },
     "devDependencies": {
         "@types/mocha": "^5.2.5",
         "@types/node": "^8.9.5",
+        "@types/glob": "^5.0.35",
+        "@types/mkdirp": "^0.5.2",
+        "@types/ncp": "^2.0.1",
+        "@types/node-fetch": "^2.1.2",
+        "@types/xml2js": "^0.4.3",
         "browserify": "^16.2.2",
         "del": "^3.0.0",
         "event-stream": "^3.3.4",
         "gulp": "^4.0.0",
         "gulp-filter": "^5.1.0",
+        "gulp-json-transform": "^0.4.5",
         "gulp-typescript": "^5.0.0-alpha.3",
         "rmdir-cli": "^2.0.6",
         "run-sequence": "^2.2.1",
@@ -327,18 +361,22 @@
         "vscode-nls-dev": "^3.2.2"
     },
     "dependencies": {
-        "@types/glob": "^5.0.35",
-        "@types/mkdirp": "^0.5.2",
-        "@types/ncp": "^2.0.1",
+        "@types/triple-beam": "^1.3.0",
         "glob": "^7.1.2",
         "java-properties": "^0.2.10",
         "jsonc-parser": "^2.0.1",
+        "logform": "^1.9.1",
         "mkdirp": "^0.5.1",
         "ncp": "^2.0.0",
+        "node-fetch": "^2.2.0",
+        "triple-beam": "^1.3.0",
         "vscode-cpptools": "1.3.1",
         "vscode-jsonrpc": "^3.6.2",
         "vscode-nls": "^3.2.5",
-        "vscode-wpilibapi": "^2019.0.2",
-        "wpilib-riolog": "^0.1.0"
+        "vscode-wpilibapi": "^2019.0.3",
+        "winston": "^3.1.0",
+        "winston-transport": "^4.2.0",
+        "wpilib-riolog": "^0.1.0",
+        "xml2js": "^0.4.19"
     }
 }

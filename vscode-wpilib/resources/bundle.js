@@ -928,10 +928,10 @@ async function properRace(promises) {
     }
     catch (index) {
         // The promise has rejected, remove it from the list of promises and just continue the race.
-        console.log('reject promise');
+        logger.log('reject promise');
         // tslint:disable-next-line:no-unsafe-any
         const p = promises.splice(index, 1)[0];
-        p.catch((e) => console.log('A promise has been rejected, but awaiting others', e));
+        p.catch((e) => logger.log('A promise has been rejected, but awaiting others', e));
         return properRace(promises);
     }
 }
@@ -956,7 +956,7 @@ function timerPromise(ms) {
             if (timer === undefined) {
                 return;
             }
-            console.log('cancelled timer');
+            logger.log('cancelled timer');
             timers.clearTimeout(timer);
         },
     };
@@ -997,28 +997,28 @@ function getSocketFromDS(port) {
             // tslint:disable-next-line:no-bitwise
             ipAddr += (ip & 0xff);
             s.on('error', (_) => {
-                console.log('failed connection to ' + ip + ' at ' + port);
+                logger.log('failed connection to ' + ip + ' at ' + port);
                 s.end();
                 s.destroy();
                 s.removeAllListeners();
                 reject();
             });
             s.on('timeout', () => {
-                console.log('failed connection to ' + ip + ' at ' + port);
+                logger.log('failed connection to ' + ip + ' at ' + port);
                 s.end();
                 s.destroy();
                 s.removeAllListeners();
                 reject();
             });
             s.on('close', () => {
-                console.log('failed connection to ' + ip + ' at ' + port);
+                logger.log('failed connection to ' + ip + ' at ' + port);
                 s.end();
                 s.destroy();
                 s.removeAllListeners();
                 reject();
             });
             s.on('dispose', () => {
-                console.log('disposed ds connected');
+                logger.log('disposed ds connected');
                 reject();
                 s.end();
                 s.destroy();
@@ -1036,7 +1036,7 @@ function getSocketFromDS(port) {
             reject();
         });
         ds.on('dispose', () => {
-            console.log('disposed ds');
+            logger.log('disposed ds');
             reject();
             ds.end();
             ds.destroy();
@@ -1059,14 +1059,14 @@ function getSocketFromIP(port, ip) {
     const s = new net.Socket();
     return new RawSocketPromisePair(s, new Promise((resolve, reject) => {
         s.on('error', (_) => {
-            console.log('failed connection to ' + ip + ' at ' + port);
+            logger.log('failed connection to ' + ip + ' at ' + port);
             s.end();
             s.destroy();
             s.removeAllListeners();
             reject();
         });
         s.on('timeout', () => {
-            console.log('failed connection to ' + ip + ' at ' + port);
+            logger.log('failed connection to ' + ip + ' at ' + port);
             s.end();
             s.destroy();
             s.removeAllListeners();
@@ -1079,7 +1079,7 @@ function getSocketFromIP(port, ip) {
             reject();
         });
         s.on('dispose', () => {
-            console.log('disposed', ip);
+            logger.log('disposed', ip);
             reject();
             s.end();
             s.destroy();
@@ -1182,7 +1182,7 @@ class RioConsole extends events_1.EventEmitter {
                 }
                 await this.runFunction(this.teamNumber);
             }
-            console.log('finished loop');
+            logger.log('finished loop');
         };
         this.promise = asyncFunction();
     }
@@ -1241,12 +1241,12 @@ class RioConsole extends events_1.EventEmitter {
     async runFunction(teamNumber) {
         const socket = await this.connect(teamNumber);
         if (socket === undefined) {
-            console.log('bad socket');
+            logger.log('bad socket');
             return;
         }
         this.connected = true;
         this.emit('connectionChanged', true);
-        console.log('succesfully connected');
+        logger.log('succesfully connected');
         socket.on('data', (data) => {
             this.handleData(data);
         });
@@ -1262,17 +1262,17 @@ class RioConsole extends events_1.EventEmitter {
                 socket.destroy();
                 socket.removeAllListeners();
                 resolve();
-                console.log('closed locally');
+                logger.log('closed locally');
             };
             socket.on('close', () => {
                 socket.removeAllListeners();
                 resolve();
-                console.log('closed remotely (close)');
+                logger.log('closed remotely (close)');
             });
             socket.on('end', () => {
                 socket.removeAllListeners();
                 resolve();
-                console.log('closed remotely (end)');
+                logger.log('closed remotely (end)');
             });
         });
         this.connected = false;
@@ -1455,7 +1455,7 @@ class RioLogWindow {
         }
         else if (data.type === interfaces_1.ReceiveTypes.ChangeNumber) {
             const number = data.message;
-            console.log('setting team number');
+            logger.log('setting team number');
             this.rioConsole.setTeamNumber(number);
         }
     }
@@ -1483,8 +1483,6 @@ window.addEventListener('message', (event) => {
     const data = event.data;
     sharedscript_1.handleMessage(data);
 });
-
-
 
 },{"../shared/sharedscript":13}],13:[function(require,module,exports){
 'use strict';
@@ -1539,79 +1537,151 @@ function onDiscard() {
         });
     }
 }
-exports.onDiscard = onDiscard;
-function onClear() {
-    const list = document.getElementById('list');
-    if (list === null) {
-        return;
+exports.PromiseCondition = PromiseCondition;
+
+},{}],9:[function(require,module,exports){
+'use strict';
+Object.defineProperty(exports, "__esModule", { value: true });
+const net = require("net");
+const timers = require("timers");
+async function properRace(promises) {
+    if (promises.length < 1) {
+        return Promise.reject('Can\'t start a race without promises!');
     }
-    list.innerHTML = '';
+    // There is no way to know which promise is rejected.
+    // So we map it to a new promise to return the index when it fails
+    const indexPromises = promises.map((p, index) => p.catch(() => { throw index; }));
+    try {
+        return await Promise.race(indexPromises);
+    }
+    catch (index) {
+        // The promise has rejected, remove it from the list of promises and just continue the race.
+        console.log('reject promise');
+        // tslint:disable-next-line:no-unsafe-any
+        const p = promises.splice(index, 1)[0];
+        p.catch((e) => console.log('A promise has been rejected, but awaiting others', e));
+        return properRace(promises);
+    }
 }
-exports.onClear = onClear;
-let showWarnings = true;
-function onShowWarnings() {
-    const warningsButton = document.getElementById('showwarnings');
-    if (warningsButton === null) {
-        return;
-    }
-    if (showWarnings === true) {
-        showWarnings = false;
-        warningsButton.innerHTML = 'Show Warnings';
-    }
-    else {
-        showWarnings = true;
-        warningsButton.innerHTML = 'Don\'t Show Warnings';
-    }
-    const ul = document.getElementById('list');
-    if (ul === null) {
-        return;
-    }
-    const items = ul.getElementsByTagName('li');
-    // tslint:disable-next-line:prefer-for-of
-    for (let i = 0; i < items.length; ++i) {
-        if (items[i].dataset.type === 'warning') {
-            if (showWarnings === true) {
-                items[i].style.display = 'inline';
+const constantIps = [
+    '172.22.11.2',
+    '127.0.0.1',
+];
+const teamIps = [
+    'roboRIO-TEAM-FRC.local',
+    'roboRIO-TEAM-FRC.lan',
+    'roboRIO-TEAM-FRC.frc-field.local',
+];
+function timerPromise(ms) {
+    let timer;
+    return {
+        promise: new Promise((resolve, _) => {
+            timer = timers.setTimeout(() => {
+                resolve(undefined);
+            }, ms);
+        }),
+        cancel() {
+            if (timer === undefined) {
+                return;
             }
-            else {
-                items[i].style.display = 'none';
-            }
-        }
-    }
-    implscript_1.checkResize();
+            console.log('cancelled timer');
+            timers.clearTimeout(timer);
+        },
+    };
 }
-exports.onShowWarnings = onShowWarnings;
-let showPrints = true;
-function onShowPrints() {
-    const printButton = document.getElementById('showprints');
-    if (printButton === null) {
-        return;
+class DSSocketPromisePair {
+    constructor(rs, ds, p) {
+        this.socket = rs;
+        this.promise = p;
+        this.dsSocket = ds;
     }
-    if (showPrints === true) {
-        showPrints = false;
-        printButton.innerHTML = 'Show Prints';
+    dispose() {
+        this.socket.emit('dispose');
+        this.dsSocket.emit('dispose');
     }
-    else {
-        showPrints = true;
-        printButton.innerHTML = 'Don\'t Show Prints';
-    }
-    const ul = document.getElementById('list');
-    if (ul === null) {
-        return;
-    }
-    const items = ul.getElementsByTagName('li');
-    // tslint:disable-next-line:prefer-for-of
-    for (let i = 0; i < items.length; ++i) {
-        if (items[i].dataset.type === 'print') {
-            if (showPrints === true) {
-                items[i].style.display = 'inline';
+}
+function getSocketFromDS(port) {
+    const s = new net.Socket();
+    const ds = new net.Socket();
+    const retVal = new DSSocketPromisePair(s, ds, new Promise((resolve, reject) => {
+        // First connect to ds, and wait for data
+        ds.on('data', (data) => {
+            const parsed = JSON.parse(data.toString());
+            if (parsed.robotIP === 0) {
+                ds.end();
+                ds.destroy();
+                ds.removeAllListeners();
+                reject();
+                return;
             }
-            else {
-                items[i].style.display = 'none';
-            }
-        }
+            let ipAddr = '';
+            const ip = parsed.robotIP;
+            // tslint:disable-next-line:no-bitwise
+            ipAddr += ((ip >> 24) & 0xff) + '.';
+            // tslint:disable-next-line:no-bitwise
+            ipAddr += ((ip >> 16) & 0xff) + '.';
+            // tslint:disable-next-line:no-bitwise
+            ipAddr += ((ip >> 8) & 0xff) + '.';
+            // tslint:disable-next-line:no-bitwise
+            ipAddr += (ip & 0xff);
+            s.on('error', (_) => {
+                console.log('failed connection to ' + ip + ' at ' + port);
+                s.end();
+                s.destroy();
+                s.removeAllListeners();
+                reject();
+            });
+            s.on('timeout', () => {
+                console.log('failed connection to ' + ip + ' at ' + port);
+                s.end();
+                s.destroy();
+                s.removeAllListeners();
+                reject();
+            });
+            s.on('close', () => {
+                console.log('failed connection to ' + ip + ' at ' + port);
+                s.end();
+                s.destroy();
+                s.removeAllListeners();
+                reject();
+            });
+            s.on('dispose', () => {
+                console.log('disposed ds connected');
+                reject();
+                s.end();
+                s.destroy();
+                s.removeAllListeners();
+            });
+            s.connect(port, ipAddr, () => {
+                s.removeAllListeners();
+                resolve(s);
+            });
+            ds.end();
+            ds.destroy();
+            ds.removeAllListeners();
+        });
+        ds.on('error', () => {
+            reject();
+        });
+        ds.on('dispose', () => {
+            console.log('disposed ds');
+            reject();
+            ds.end();
+            ds.destroy();
+            ds.removeAllListeners();
+        });
+        ds.connect(1742, '127.0.0.1');
+    }));
+    return retVal;
+}
+class RawSocketPromisePair {
+    constructor(rs, p) {
+        this.socket = rs;
+        this.promise = p;
     }
-    implscript_1.checkResize();
+    dispose() {
+        this.socket.emit('dispose');
+    }
 }
 exports.onShowPrints = onShowPrints;
 let autoReconnect = true;
@@ -1630,74 +1700,111 @@ function onAutoReconnect() {
             message: true,
             type: wpilib_riolog_1.ReceiveTypes.Reconnect,
         });
-    }
-    const arButton = document.getElementById('autoreconnect');
-    if (arButton === null) {
-        return;
-    }
-    if (autoReconnect === true) {
-        arButton.innerHTML = 'Reconnect';
-    }
-    else {
-        arButton.innerHTML = 'Disconnect';
-    }
+        s.connect(port, ip, () => {
+            s.removeAllListeners();
+            resolve(s);
+        });
+    }));
 }
-exports.onAutoReconnect = onAutoReconnect;
-let showTimestamps = false;
-function onShowTimestamps() {
-    const tsButton = document.getElementById('timestamps');
-    if (tsButton === null) {
-        return;
+async function connectToRobot(port, teamNumber, timeout) {
+    const pairs = [];
+    teamNumber = Math.trunc(teamNumber);
+    for (const c of constantIps) {
+        pairs.push(getSocketFromIP(port, c));
     }
-    if (showTimestamps === true) {
-        showTimestamps = false;
-        tsButton.innerHTML = 'Show Timestamps';
+    for (const c of teamIps) {
+        pairs.push(getSocketFromIP(port, c.replace('TEAM', teamNumber.toString())));
+    }
+    pairs.push(getSocketFromIP(port, `10.${Math.trunc(teamNumber / 100)}.${teamNumber % 100}.2`));
+    pairs.push(getSocketFromDS(port));
+    const connectors = [];
+    for (const p of pairs) {
+        connectors.push(p.promise);
+    }
+    const timer = timerPromise(timeout);
+    connectors.push(timer.promise);
+    const firstDone = await properRace(connectors);
+    if (firstDone === undefined) {
+        // Kill all
+        for (const p of pairs) {
+            p.dispose();
+            try {
+                await p.promise;
+                // tslint:disable-next-line:no-empty
+            }
+            catch (_a) {
+            }
+        }
     }
     else {
-        showTimestamps = true;
-        tsButton.innerHTML = 'Don\'t Show Timestamps';
-    }
-    const ul = document.getElementById('list');
-    if (ul === null) {
-        return;
-    }
-    const items = ul.getElementsByTagName('li');
-    // tslint:disable-next-line:prefer-for-of
-    for (let i = 0; i < items.length; ++i) {
-        const spans = items[i].getElementsByTagName('span');
-        if (spans === undefined) {
-            continue;
-        }
-        // tslint:disable-next-line:prefer-for-of
-        for (let j = 0; j < spans.length; j++) {
-            const span = spans[j];
-            if (span.hasAttribute('data-timestamp')) {
-                if (showTimestamps === true) {
-                    span.style.display = 'inline';
+        // Kill all but me
+        timer.cancel();
+        for (const p of pairs) {
+            if (firstDone !== p.socket) {
+                p.dispose();
+                try {
+                    await p.promise;
+                    // tslint:disable-next-line:no-empty
                 }
-                else {
-                    span.style.display = 'none';
+                catch (_b) {
                 }
             }
         }
     }
-    implscript_1.checkResize();
+    return firstDone;
 }
-exports.onShowTimestamps = onShowTimestamps;
-function onSaveLog() {
-    const ul = document.getElementById('list');
-    if (ul === null) {
-        return;
+exports.connectToRobot = connectToRobot;
+
+},{"net":1,"timers":4}],10:[function(require,module,exports){
+'use strict';
+Object.defineProperty(exports, "__esModule", { value: true });
+const events_1 = require("events");
+const message_1 = require("./message");
+const promisecond_1 = require("./promisecond");
+const rioconnector_1 = require("./rioconnector");
+class RioConsole extends events_1.EventEmitter {
+    constructor() {
+        super(...arguments);
+        this.discard = false;
+        this.connected = false;
+        this.autoReconnect = true;
+        this.cleanup = false;
+        this.condition = new promisecond_1.PromiseCondition();
+        this.teamNumber = 0;
     }
-    const items = ul.getElementsByTagName('li');
-    const logs = [];
-    // tslint:disable-next-line:prefer-for-of
-    for (let i = 0; i < items.length; ++i) {
-        const m = items[i].dataset.message;
-        if (m === undefined) {
-            return;
+    stop() {
+        this.cleanup = true;
+        this.closeSocket();
+    }
+    getAutoReconnect() {
+        return this.autoReconnect;
+    }
+    setAutoReconnect(value) {
+        this.autoReconnect = value;
+        if (value === true) {
+            this.condition.set();
         }
-        logs.push(m);
+    }
+    startListening() {
+        const asyncFunction = async () => {
+            while (!this.cleanup) {
+                while (!this.autoReconnect) {
+                    if (this.cleanup) {
+                        return;
+                    }
+                    await this.condition.wait();
+                    this.condition.reset();
+                }
+                await this.runFunction(this.teamNumber);
+            }
+            console.log('finished loop');
+        };
+        this.promise = asyncFunction();
+    }
+    closeSocket() {
+        if (this.closeFunc !== undefined) {
+            this.closeFunc();
+        }
     }
     implscript_1.sendMessage({
         message: logs,
@@ -1710,124 +1817,166 @@ function onConnect() {
     if (button === null) {
         return;
     }
-    button.style.backgroundColor = 'Green';
-}
-exports.onConnect = onConnect;
-function onDisconnect() {
-    const button = document.getElementById('autoreconnect');
-    if (button === null) {
-        return;
+    setTeamNumber(teamNumber) {
+        this.teamNumber = teamNumber;
     }
-    button.style.backgroundColor = 'Red';
-}
-exports.onDisconnect = onDisconnect;
-function insertMessage(ts, line, li, color) {
-    const div = document.createElement('div');
-    const tsSpan = document.createElement('span');
-    tsSpan.appendChild(document.createTextNode(ts.toFixed(3) + ': '));
-    tsSpan.dataset.timestamp = 'true';
-    if (showTimestamps === true) {
-        tsSpan.style.display = 'inline';
+    async dispose() {
+        this.stop();
+        this.removeAllListeners();
+        await this.promise;
     }
-    else {
-        tsSpan.style.display = 'none';
-    }
-    div.appendChild(tsSpan);
-    const span = document.createElement('span');
-    const split = line.split('\n');
-    let first = true;
-    for (const item of split) {
-        if (item.trim() === '') {
-            continue;
+    async connect(teamNumber) {
+        const socket = await rioconnector_1.connectToRobot(1741, teamNumber, 2000);
+        if (socket === undefined) {
+            return undefined;
         }
-        if (first === false) {
-            span.appendChild(document.createElement('br'));
+        socket.setNoDelay(true);
+        socket.setKeepAlive(true, 500);
+        return socket;
+    }
+    handleData(data) {
+        if (this.discard) {
+            return;
         }
-        first = false;
-        const tNode = document.createTextNode(item);
-        span.appendChild(tNode);
-    }
-    if (color !== undefined) {
-        span.style.color = color;
-    }
-    div.appendChild(span);
-    li.appendChild(div);
-}
-function insertStackTrace(st, li, color) {
-    const div = document.createElement('div');
-    const split = st.split('\n');
-    let first = true;
-    for (const item of split) {
-        if (item.trim() === '') {
-            continue;
+        let count = 0;
+        let len = 0;
+        do {
+            len = data.readUInt16BE(count);
+            count += 2;
+        } while (len === 0);
+        const tag = data.readUInt8(count);
+        count++;
+        const outputBuffer = data.slice(3, len + 2);
+        const extendedBuf = data.slice(2 + len);
+        if (tag === 11) {
+            // error or warning.
+            const m = new message_1.ErrorMessage(outputBuffer);
+            this.emit('message', m);
         }
-        if (first === false) {
-            div.appendChild(document.createElement('br'));
+        else if (tag === 12) {
+            const m = new message_1.PrintMessage(outputBuffer);
+            this.emit('message', m);
         }
-        first = false;
-        const tNode = document.createTextNode('\u00a0\u00a0\u00a0\u00a0 at: ' + item);
-        div.appendChild(tNode);
-    }
-    if (color !== undefined) {
-        div.style.color = color;
-    }
-    li.appendChild(div);
-}
-function insertLocation(loc, li, color) {
-    const div = document.createElement('div');
-    const split = loc.split('\n');
-    let first = true;
-    for (const item of split) {
-        if (item.trim() === '') {
-            continue;
+        if (extendedBuf.length > 0) {
+            this.handleData(extendedBuf);
         }
-        if (first === false) {
-            li.appendChild(document.createElement('br'));
+    }
+    async runFunction(teamNumber) {
+        const socket = await this.connect(teamNumber);
+        if (socket === undefined) {
+            console.log('bad socket');
+            return;
         }
-        first = false;
-        const tNode = document.createTextNode('\u00a0\u00a0 from: ' + item);
-        li.appendChild(tNode);
+        this.connected = true;
+        this.emit('connectionChanged', true);
+        console.log('succesfully connected');
+        socket.on('data', (data) => {
+            this.handleData(data);
+        });
+        if (this.cleanup) {
+            socket.end();
+            socket.destroy();
+            socket.removeAllListeners();
+            return;
+        }
+        await new Promise((resolve, _) => {
+            this.closeFunc = () => {
+                socket.end();
+                socket.destroy();
+                socket.removeAllListeners();
+                resolve();
+                console.log('closed locally');
+            };
+            socket.on('close', () => {
+                socket.removeAllListeners();
+                resolve();
+                console.log('closed remotely (close)');
+            });
+            socket.on('end', () => {
+                socket.removeAllListeners();
+                resolve();
+                console.log('closed remotely (end)');
+            });
+        });
+        this.connected = false;
+        this.emit('connectionChanged', false);
     }
-    if (color !== undefined) {
-        div.style.color = color;
-    }
-    li.appendChild(div);
 }
 function addMessage(message) {
     if (message.messageType === wpilib_riolog_1.MessageType.Print) {
         addPrint(message);
     }
-    else {
-        addError(message);
+    start(teamNumber) {
+        if (this.running) {
+            return;
+        }
+        this.running = true;
+        this.createWebView();
+        this.createRioConsole();
+        if (this.webview === undefined || this.rioConsole === undefined) {
+            return;
+        }
+        this.webview.on('didDispose', () => {
+            if (this.rioConsole !== undefined) {
+                this.rioConsole.stop();
+                this.rioConsole.removeAllListeners();
+            }
+            this.rioConsole = undefined;
+            this.webview = undefined;
+            this.running = false;
+        });
+        this.webview.on('didReceiveMessage', async (data) => {
+            await this.onMessageReceived(data);
+        });
+        this.rioConsole.on('connectionChanged', async (c) => {
+            await this.onConnectionChanged(c);
+        });
+        this.rioConsole.on('message', async (message) => {
+            await this.onNewMessageToSend(message);
+        });
+        this.rioConsole.setTeamNumber(teamNumber);
+        this.rioConsole.startListening();
     }
-}
-exports.addMessage = addMessage;
-function limitList() {
-    const ul = document.getElementById('list');
-    if (ul === null) {
-        return;
+    stop() {
+        if (this.webview !== undefined) {
+            this.webview.dispose();
+        }
     }
-    if (ul.childElementCount > 1000 && ul.firstChild !== null) {
-        ul.removeChild(ul.firstChild);
+    dispose() {
+        this.stop();
+        for (const d of this.disposables) {
+            d.dispose();
+        }
     }
-}
-function addPrint(message) {
-    limitList();
-    const ul = document.getElementById('list');
-    if (ul === null) {
-        return;
+    createWebView() {
+        this.webview = this.windowProvider.createWindowView();
+        this.webview.on('windowActive', async () => {
+            if (this.webview === undefined) {
+                return;
+            }
+            // Window goes active.
+            await this.webview.postMessage({
+                message: this.hiddenArray,
+                type: interfaces_1.SendTypes.Batch,
+            });
+            if (this.rioConsole !== undefined) {
+                if (this.rioConsole.connected === true) {
+                    await this.webview.postMessage({
+                        message: true,
+                        type: interfaces_1.SendTypes.ConnectionChanged,
+                    });
+                }
+                else {
+                    await this.webview.postMessage({
+                        message: false,
+                        type: interfaces_1.SendTypes.ConnectionChanged,
+                    });
+                }
+            }
+        });
     }
-    const li = document.createElement('li');
-    li.style.fontFamily = 'Consolas, "Courier New", monospace';
-    insertMessage(message.timestamp, message.line, li);
-    const str = JSON.stringify(message);
-    li.dataset.message = str;
-    li.dataset.type = 'print';
-    if (showPrints === true) {
-        li.style.display = 'inline';
-    }
-    else {
-        li.style.display = 'none';
+    createRioConsole() {
+        this.rioConsole = this.rioConsoleProvider.getRioConsole();
     }
     ul.appendChild(li);
 }
@@ -1860,79 +2009,32 @@ function addError(message) {
             li.style.display = 'inline';
         }
         else {
-            li.style.display = 'none';
+            await this.webview.postMessage({
+                message: false,
+                type: interfaces_1.SendTypes.ConnectionChanged,
+            });
         }
     }
-    else {
-        li.dataset.type = 'error';
-        insertMessage(message.timestamp, message.details, li, 'Red');
-    }
-    li.onclick = () => {
-        if (li.dataset.expanded === 'true') {
-            // shrink
-            li.dataset.expanded = 'false';
-            if (li.dataset.message === undefined) {
-                return;
-            }
-            const parsed = JSON.parse(li.dataset.message);
-            li.innerHTML = '';
-            if (li.dataset.type === 'warning') {
-                insertMessage(parsed.timestamp, parsed.details, li, 'Yellow');
-            }
-            else {
-                insertMessage(parsed.timestamp, parsed.details, li, 'Red');
-            }
+    async onNewMessageToSend(message) {
+        if (this.webview === undefined) {
+            return;
+        }
+        if (this.paused === true) {
+            this.pausedArray.push(message);
+            await this.webview.postMessage({
+                message: this.pausedArray.length,
+                type: interfaces_1.SendTypes.PauseUpdate,
+            });
         }
         else {
-            // expand
-            li.dataset.expanded = 'true';
-            if (li.dataset.message === undefined) {
-                return;
-            }
-            const parsed = JSON.parse(li.dataset.message);
-            li.innerHTML = '';
-            if (li.dataset.type === 'warning') {
-                expandError(parsed, li, 'Yellow');
-            }
-            else {
-                expandError(parsed, li, 'Red');
+            const success = await this.webview.postMessage({
+                message,
+                type: interfaces_1.SendTypes.New,
+            });
+            if (!success) {
+                this.hiddenArray.push(message);
             }
         }
-        implscript_1.checkResize();
-    };
-    ul.appendChild(li);
-}
-exports.addError = addError;
-window.addEventListener('resize', () => {
-    implscript_1.checkResize();
-});
-// tslint:disable-next-line:no-any
-function handleFileSelect(evt) {
-    // tslint:disable-next-line:no-unsafe-any
-    const files = evt.target.files; // filelist
-    const firstFile = files[0];
-    const reader = new FileReader();
-    reader.onload = (loaded) => {
-        const target = loaded.target;
-        const parsed = JSON.parse(target.result);
-        for (const p of parsed) {
-            addMessage(p);
-        }
-        implscript_1.checkResize();
-    };
-    reader.readAsText(firstFile);
-}
-let currentScreenHeight = 100;
-function checkResizeImpl(element) {
-    const allowedHeight = element.clientHeight - currentScreenHeight;
-    const ul = document.getElementById('list');
-    if (ul === null) {
-        return;
-    }
-    const listHeight = ul.clientHeight;
-    if (listHeight < allowedHeight) {
-        ul.style.position = 'fixed';
-        ul.style.bottom = currentScreenHeight + 'px';
     }
     else {
         ul.style.position = 'static';
@@ -1963,8 +2065,13 @@ function handleMessage(data) {
             if (bMessage === true) {
                 onConnect();
             }
-            else {
-                onDisconnect();
+            await this.webview.handleSave(deserializedLogs);
+        }
+        else if (data.type === interfaces_1.ReceiveTypes.Reconnect) {
+            const newValue = data.message;
+            this.rioConsole.setAutoReconnect(newValue);
+            if (newValue === false) {
+                this.rioConsole.disconnect();
             }
             break;
         default:
@@ -2001,16 +2108,16 @@ function createButton(id, text, callback) {
 }
 function onChangeTeamNumber() {
     const newNumber = document.getElementById('teamNumber');
-    console.log('finding team number');
+    logger.log('finding team number');
     if (newNumber === null) {
         return;
     }
-    console.log('sending message');
+    logger.log('sending message');
     implscript_1.sendMessage({
         message: parseInt(newNumber.value, 10),
         type: wpilib_riolog_1.ReceiveTypes.ChangeNumber,
     });
-    console.log('sent message');
+    logger.log('sent message');
 }
 function setLivePage() {
     const mdv = document.getElementById('mainDiv');
@@ -2103,7 +2210,5 @@ exports.setViewerPage = setViewerPage;
 window.addEventListener('load', (_) => {
     setLivePage();
 });
-
-
 
 },{"../script/implscript":12,"wpilib-riolog":5}]},{},[13]);

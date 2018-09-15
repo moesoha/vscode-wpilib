@@ -11,14 +11,20 @@ import { DeployDebugAPI } from './deploydebugapi';
 import { ExampleTemplateAPI } from './exampletemplateapi';
 import { ExecuteAPI } from './executor';
 import { activateJava } from './java/java';
+import { findJdkPath } from './jdkdetector';
+import { closeLogger, logger, setLoggerDirectory } from './logger';
 import { PersistentFolderState } from './persistentState';
 import { PreferencesAPI } from './preferencesapi';
+import { promisifyMkdirp } from './shared/generator';
 import { ToolAPI } from './toolapi';
-import { setExtensionContext } from './utilities';
+import { setExtensionContext, setJavaHome } from './utilities';
+import { UtilitiesAPI } from './utilitiesapi';
+import { VendorLibraries } from './vendorlibraries';
 import { createVsCommands } from './vscommands';
 import { EclipseUpgrade } from './webviews/eclipseupgrade';
 import { Help } from './webviews/help';
 import { ProjectCreator } from './webviews/projectcreator';
+import { WPILibUpdates } from './wpilibupdates';
 
 // External API class to implement the IExternalAPI interface
 class ExternalAPI implements IExternalAPI {
@@ -38,15 +44,17 @@ class ExternalAPI implements IExternalAPI {
   private readonly exampleTemplateApi: ExampleTemplateAPI;
   private readonly commandApi: CommandAPI;
   private readonly executeApi: ExecuteAPI;
+  private readonly utilitiesApi: UtilitiesAPI;
 
   private constructor(preferencesApi: PreferencesAPI, deployDebugApi: DeployDebugAPI, buildTestApi: BuildTestAPI) {
-    this.toolApi = new ToolAPI();
     this.exampleTemplateApi = new ExampleTemplateAPI();
     this.commandApi = new CommandAPI();
     this.executeApi = new ExecuteAPI();
     this.preferencesApi = preferencesApi;
     this.deployDebugApi = deployDebugApi;
     this.buildTestApi = buildTestApi;
+    this.utilitiesApi = new UtilitiesAPI();
+    this.toolApi = new ToolAPI(this);
   }
 
   public getToolAPI(): ToolAPI {
@@ -70,6 +78,9 @@ class ExternalAPI implements IExternalAPI {
   public getExecuteAPI(): ExecuteAPI {
     return this.executeApi;
   }
+  public getUtilitiesAPI(): UtilitiesAPI {
+    return this.utilitiesApi;
+  }
 }
 
 // this method is called when your extension is activated
@@ -84,6 +95,24 @@ export async function activate(context: vscode.ExtensionContext) {
   // functionality. Its definition is provided in shared/externalapi.ts.
   // That file can be copied to another project.
   const externalApi = await ExternalAPI.Create(extensionResourceLocation);
+
+  const frcHomeDir = externalApi.getUtilitiesAPI().getWPILibHomeDir();
+
+  const logPath = path.join(frcHomeDir, 'logs');
+  try {
+    await promisifyMkdirp(logPath);
+    setLoggerDirectory(logPath);
+  } catch (err) {
+    logger.error('Error creating logger', err);
+  }
+
+  const jdkLoc = await findJdkPath(externalApi);
+
+  if (jdkLoc !== undefined) {
+    setJavaHome(jdkLoc);
+  } else {
+    await vscode.window.showErrorMessage('Java not found. Might have compilation errors');
+  }
 
   // Activate the C++ parts of the extension
   await activateCpp(context, externalApi);
@@ -110,7 +139,13 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(projectcreator);
 
   // Add built in tools
-  await BuiltinTools.Create('2018', externalApi);
+  await BuiltinTools.Create(externalApi);
+
+  const vendorLibs = new VendorLibraries(externalApi);
+
+  context.subscriptions.push(vendorLibs);
+
+  context.subscriptions.push(new WPILibUpdates(externalApi));
 
   // Detect if we are a new WPILib project, and if so display the WPILib help window.
   const wp = vscode.workspace.workspaceFolders;
@@ -128,12 +163,12 @@ export async function activate(context: vscode.ExtensionContext) {
   }
 
   // Log our extension is active
-  console.log('Congratulations, your extension "vscode-wpilib" is now active!');
+  logger.log('Congratulations, your extension "vscode-wpilib" is now active!');
 
   return externalApi;
 }
 
 // this method is called when your extension is deactivated
 export function deactivate() {
-  //
+  closeLogger();
 }

@@ -113,11 +113,32 @@ export function promisifyTimer(time: number): Promise<void> {
   });
 }
 
+export function promisifyDeleteFile(file: string): Promise<boolean> {
+  return new Promise<boolean>((resolve) => {
+    fs.unlink(file, (err) => {
+      if (err) {
+        resolve(false);
+      } else {
+        resolve(true);
+      }
+    });
+  });
+}
+
+export let javaHome: string;
+export function setJavaHome(jhome: string): void {
+  javaHome = jhome;
+}
+
 export async function gradleRun(args: string, rootDir: string, workspace: vscode.WorkspaceFolder,
                                 name: string, executeApi: IExecuteAPI, preferences: IPreferences): Promise<number> {
   let command = './gradlew ' + args + ' ' + preferences.getAdditionalGradleArguments();
   if (!preferences.getOnline()) {
     command += ' --offline';
+  }
+
+  if (javaHome !== '') {
+    command += ` -Dorg.gradle.java.home="${javaHome}"`;
   }
 
   await setExecutePermissions(path.join(workspace.uri.fsPath, 'gradlew'));

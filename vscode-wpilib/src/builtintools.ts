@@ -1,9 +1,8 @@
 'use strict';
 
 import * as cp from 'child_process';
-import * as os from 'os';
 import * as path from 'path';
-import { IExternalAPI, IToolRunner } from 'vscode-wpilibapi';
+import { IExternalAPI, IToolRunner, IUtilitiesAPI } from 'vscode-wpilibapi';
 import { getIsWindows, promisifyExists, promisifyReadFile } from './utilities';
 
 interface ITool {
@@ -38,7 +37,7 @@ class VbsToolRunner implements IToolRunner {
         });
       } else {
         // Unix, run as javaw
-        cp.exec(`javaw -jar ${this.toolScript}`, (err) => {
+        cp.exec(`java -jar ${this.toolScript}`, (err) => {
           if (err) {
             resolve(false);
           } else {
@@ -57,8 +56,8 @@ class VbsToolRunner implements IToolRunner {
 }
 
 export class BuiltinTools {
-  public static async Create(year: string, api: IExternalAPI): Promise<BuiltinTools> {
-    const bt = new BuiltinTools(year);
+  public static async Create(api: IExternalAPI): Promise<BuiltinTools> {
+    const bt = new BuiltinTools(api.getUtilitiesAPI());
     const toolApi = api.getToolAPI();
     const homeTools = await bt.enumerateHomeTools();
     const isWindows = getIsWindows();
@@ -80,31 +79,14 @@ export class BuiltinTools {
     return bt;
   }
 
-  private readonly year: string;
+  private utilities: IUtilitiesAPI;
 
-  private constructor(year: string) {
-    this.year = year;
-  }
-
-  private getHomeDir(): string {
-    const frcHome = process.env[`FRC_${this.year}_HOME`];
-    if (frcHome) {
-      return frcHome;
-    } else {
-      if (getIsWindows()) {
-        // Windows, search public home
-        return '';
-      } else {
-        // Unix, search user home
-        const dir = os.homedir();
-        const wpilibhome = path.join(dir, `wpilib${this.year}`);
-        return wpilibhome;
-      }
-    }
+  private constructor(utilities: IUtilitiesAPI) {
+    this.utilities = utilities;
   }
 
   private async enumerateHomeTools(): Promise<IEnumerateResult> {
-    const homeDir = this.getHomeDir();
+    const homeDir = this.utilities.getWPILibHomeDir();
     const toolsDir = path.join(homeDir, 'tools');
 
     const toolsJson = path.join(toolsDir, 'tools.json');

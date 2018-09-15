@@ -4,6 +4,7 @@ import * as jsonc from 'jsonc-parser';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { IExampleTemplateAPI, IExampleTemplateCreator } from 'vscode-wpilibapi';
+import { logger } from './logger';
 import { generateCopyCpp, generateCopyJava } from './shared/generator';
 
 import * as nls from 'vscode-nls';
@@ -27,7 +28,7 @@ export class Templates {
     const gradleBasePath = path.join(path.dirname(resourceRoot), 'gradle');
     fs.readFile(resourceFile, 'utf8', (err, data) => {
       if (err) {
-        console.log(err);
+        logger.log(JSON.stringify(err, null, 4));
         return;
       }
       const templates: ITemplateJsonLayout[] = jsonc.parse(data) as ITemplateJsonLayout[];
@@ -58,7 +59,7 @@ export class Templates {
                 }
               }
             } catch (err) {
-              console.log(err);
+              logger.log(JSON.stringify(err, null, 4));
               return false;
             }
             return true;

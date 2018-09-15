@@ -2,7 +2,10 @@
 
 import * as vscode from 'vscode';
 import { IExternalAPI } from 'vscode-wpilibapi';
+import { logger } from './logger';
 import { requestTeamNumber } from './preferences';
+import { ToolAPI } from './toolapi';
+import { javaHome } from './utilities';
 
 import * as nls from 'vscode-nls';
 import nlsConfig from './nls';
@@ -149,7 +152,7 @@ export function createVsCommands(context: vscode.ExtensionContext, externalApi: 
       localize('message.skipTest.confirm', 'Skip tests on deploy?'),
       localize('layout.yes', 'Yes'), localize('layout.no', 'No'));
     if (result === undefined) {
-      console.log('Invalid selection for settting skip tests');
+      logger.log('Invalid selection for settting skip tests');
       return;
     }
     const preferences = preferencesApi.getPreferences(workspace);
@@ -174,7 +177,7 @@ export function createVsCommands(context: vscode.ExtensionContext, externalApi: 
       localize('message.setOnline.confirm', 'Run commands in Online mode?'),
       localize('layout.yes', 'Yes'), localize('layout.no', 'No'));
     if (result === undefined) {
-      console.log('Invalid selection for settting online');
+      logger.log('Invalid selection for settting online');
       return;
     }
     const preferences = preferencesApi.getPreferences(workspace);
@@ -199,7 +202,7 @@ export function createVsCommands(context: vscode.ExtensionContext, externalApi: 
       localize('message.stopSimDebugOnEntry.confirm', 'Stop simulation debugging on entry?'),
       localize('layout.yes', 'Yes'), localize('layout.no', 'No'));
     if (result === undefined) {
-      console.log('Invalid selection for settting stop simulation on entry');
+      logger.log('Invalid selection for settting stop simulation on entry');
       return;
     }
     const preferences = preferencesApi.getPreferences(workspace);
@@ -225,7 +228,7 @@ export function createVsCommands(context: vscode.ExtensionContext, externalApi: 
       localize('message.autoSaveOnDeploy.confirm', 'Automatically save on deploy?'),
       localize('layout.yes', 'Yes'), localize('layout.no', 'No'));
     if (result === undefined) {
-      console.log('failed to set automatically save on deploy');
+      logger.log('failed to set automatically save on deploy');
       return;
     }
     const preferences = preferencesApi.getPreferences(workspace);
@@ -250,7 +253,7 @@ export function createVsCommands(context: vscode.ExtensionContext, externalApi: 
       localize('message.startRioLogOnDeploy.confirm', 'Automatically start RioLog on deploy?'),
       localize('layout.yes', 'Yes'), localize('layout.no', 'No'));
     if (result === undefined) {
-      console.log('Invalid selection for riolog on deploy');
+      logger.log('Invalid selection for riolog on deploy');
       return;
     }
     const preferences = preferencesApi.getPreferences(workspace);
@@ -265,5 +268,36 @@ export function createVsCommands(context: vscode.ExtensionContext, externalApi: 
 
   context.subscriptions.push(vscode.commands.registerCommand('wpilibcore.cancelTasks', async () => {
     await externalApi.getExecuteAPI().cancelCommands();
+  }));
+
+  context.subscriptions.push(vscode.commands.registerCommand('wpilibcore.setJavaHome', async () => {
+    if (javaHome === '') {
+      return;
+    }
+    const selection = await vscode.window.showInformationMessage('Set in project or globally?', 'Project', 'Global');
+    if (selection !== undefined) {
+      if (selection === 'Project') {
+        const wp = await externalApi.getPreferencesAPI().getFirstOrSelectedWorkspace();
+        if (wp === undefined) {
+          vscode.window.showInformationMessage('Cannot set java on empty workspace');
+          return;
+        }
+        const javaConfig = vscode.workspace.getConfiguration('java', wp.uri);
+        await javaConfig.update('home', javaHome, vscode.ConfigurationTarget.WorkspaceFolder);
+      } else {
+        const javaConfig = vscode.workspace.getConfiguration('java');
+        await javaConfig.update('home', javaHome, vscode.ConfigurationTarget.Global);
+      }
+    }
+  }));
+
+  context.subscriptions.push(vscode.commands.registerCommand('wpilibcore.installGradleTools', async () => {
+    const preferencesApi = externalApi.getPreferencesAPI();
+    const workspace = await preferencesApi.getFirstOrSelectedWorkspace();
+    if (workspace === undefined) {
+      vscode.window.showInformationMessage('Cannot install gradle tools with an empty workspace');
+      return;
+    }
+    await ToolAPI.InstallToolsFromGradle(workspace, externalApi);
   }));
 }
