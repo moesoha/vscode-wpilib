@@ -52,15 +52,15 @@ window.addEventListener('load', () => {
   document.querySelectorAll('[data-i18n-trans]').forEach((e: Element) => {
     const domainAttr = e.attributes.getNamedItem('data-i18n-trans');
     const keyAttr = e.attributes.getNamedItem('data-i18n-key');
-    if (!domainAttr || !e.textContent) {
+    if (!domainAttr || !e.innerHTML) {
       return;
     }
-    let message: string | string[] = e.textContent;
+    let message: string | string[] = e.innerHTML;
     if (!!keyAttr && keyAttr.value !== '') {
       message = [keyAttr.value, message];
     }
     const domain = domainAttr.value === '' ? defaultDomain : domainAttr.value;
-    e.textContent = localize(domain, message);
+    e.innerHTML = localize(domain, message);
   });
 });
 

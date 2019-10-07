@@ -30,11 +30,13 @@ export class Help extends WebViewBase {
   }
 
   public displayHelp() {
-    this.displayWebView(vscode.ViewColumn.Active);
+    this.displayWebView(vscode.ViewColumn.Active, undefined, {
+      enableScripts: true,
+    });
   }
 
   private async asyncInitialize() {
-    await this.loadWebpage(path.join(extensionContext.extensionPath, 'resources', 'webviews', 'help.html'));
+    await this.loadWebpage(path.join(extensionContext.extensionPath, 'resources', 'webviews', 'help.html'), undefined, ['help']);
 
     const workspaces = vscode.workspace.workspaceFolders;
     if (workspaces !== undefined) {
