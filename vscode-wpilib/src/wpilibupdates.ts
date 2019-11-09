@@ -79,7 +79,7 @@ export class WPILibUpdates {
     } else {
       const result = await vscode.window.showInformationMessage
         (i18n('message', `WPILib project update ({0}) found, would you like to install it? ` +
-          `{1} currently installed`, newVersion, grVersion), {
+          `{1} currently installed`, newVersion.newVersion, grVersion), {
             modal: true,
           }, i18n('ui', 'Yes'), i18n('ui', 'No'));
       if (result !== undefined && result === i18n('ui', 'Yes')) {
@@ -207,9 +207,10 @@ export class WPILibUpdates {
         if (versions.length === 0) {
           return undefined;
         }
-        let newestVersion = versions[0];
+        let newestVersion = '0';
+        const frcYear = this.externalApi.getUtilitiesAPI().getFrcYear();
         for (const v of versions) {
-          if (isNewerVersion(v, newestVersion)) {
+          if (v.startsWith(frcYear) && isNewerVersion(v, newestVersion)) {
             newestVersion = v;
           }
         }
