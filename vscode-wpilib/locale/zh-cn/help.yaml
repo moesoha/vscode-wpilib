@@ -1,2 +1,4 @@
 WPILib Help: WPILib 帮助
 Welcome to WPILib Help!: 欢迎使用 WPILib 帮助！
+To open this window again, open the Command Palette (F1 or View→Command Palette), and select <b>Open WPILib Help</b>.: 想要重新打开这个页面，使用命令面板（按 F1 或点选“查看”→“命令面板”），然后选择<b>打开 WPILib 帮助</b>。
+For more help, see <a href="https://docs.wpilib.org/en/latest">the WPILib documentation</a>.: 阅读更多帮助信息，请移步 <a href="https://docs.wpilib.org/en/latest">WPILib 文档</a>。
