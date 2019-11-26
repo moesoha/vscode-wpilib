@@ -1,6 +1,7 @@
 plugins {
-    id 'edu.wpi.first.wpilib.repositories.WPILibRepositoriesPlugin' version '2020.1'
+    id 'edu.wpi.first.wpilib.repositories.WPILibRepositoriesPlugin' version '2020.2'
     id 'edu.wpi.first.wpilib.versioning.WPILibVersioningPlugin' version '4.0.2'
+    id "de.undercouch.download" version "4.0.1"
     id "base"
 }
 
@@ -62,9 +63,23 @@ task extractJavaDependencies(type: Copy) {
     into 'vscode-wpilib/resources/java/src'
 }
 
+def downloadNewCommands = tasks.register('downloadNewCommands', Download) {
+  src 'https://raw.githubusercontent.com/wpilibsuite/allwpilib/master/wpilibNewCommands/WPILibNewCommands.json'
+  dest 'vscode-wpilib/resources/vendordeps/WPILibNewCommands.json'
+  overwrite true
+}
+
+def downloadOldCommands = tasks.register('downloadOldCommands', Download) {
+  src 'https://raw.githubusercontent.com/wpilibsuite/allwpilib/master/wpilibOldCommands/WPILibOldCommands.json'
+  dest 'vscode-wpilib/resources/vendordeps/WPILibOldCommands.json'
+  overwrite true
+}
+
 task copyFromVsCodeToStandaloneResources(type: Copy) {
     dependsOn extractCppDependencies
     dependsOn extractJavaDependencies
+    dependsOn downloadNewCommands
+    dependsOn downloadOldCommands
     from ('vscode-wpilib/resources/java') {
         into 'java'
     }
@@ -73,6 +88,9 @@ task copyFromVsCodeToStandaloneResources(type: Copy) {
     }
     from ('vscode-wpilib/resources/gradle') {
         into 'gradle'
+    }
+    from ('vscode-wpilib/resources/vendordeps') {
+        into 'vendordeps'
     }
     from ('vscode-wpilib/resources/eclipseprojectmain.java') {
         into '/'
@@ -89,6 +107,8 @@ task copyFromVsCodeToStandaloneSrc(type: Copy) {
     }
     into 'wpilib-utility-standalone/src'
 }
+
+
 
 task updateAllDependencies() {
     dependsOn copyFromVsCodeToStandaloneResources
@@ -111,5 +131,5 @@ if (pubVersion == '') {
 apply from: 'versions.gradle'
 
 wrapper {
-    gradleVersion = '5.4.1'
+    gradleVersion = '6.0'
 }
