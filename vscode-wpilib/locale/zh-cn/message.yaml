@@ -1,55 +1,54 @@
 Java 11 required, but not found. Might have compilation errors.: 没有找到需要的 Java 11，可能会产生编译错误。
-# This project is not compatible with this version of the extension. Please create a new project.
-# It is recommended to run a "Build" after a WPILib update to ensure dependencies are installed correctly. Would you like to do this now?
-# It is recommended to run a "Build" and update tools after a WPILib update to ensure dependencies are installed correctly. Would you like to do this now?
-# It is recommended to run a "Build" after a vendor update to ensure dependencies are installed correctly. Would you like to do this now?
-# Incorrect folder opened for WPILib project. The correct folder was found in a subfolder, Would you like to open it? Selecting no will cause many tasks to not work.
+This project is not compatible with this version of the extension. Please create a new project.: 当前项目和这个版本的插件不兼容，请创建一个新的项目。
+It is recommended to run a "Build" after a WPILib update to ensure dependencies are installed correctly. Would you like to do this now?: 为了保证更新 WPILib 之后，所有依赖都被正确安装了，建议您进行一次构建。那么现在要做这个吗？
+It is recommended to run a "Build" and update tools after a WPILib update to ensure dependencies are installed correctly. Would you like to do this now?: 为了保证更新 WPILib 之后，所有依赖都正确安装了，建议您进行一次构建并更新工具。那么现在要做这个吗？
+It is recommended to run a "Build" after a vendor update to ensure dependencies are installed correctly. Would you like to do this now?: 为了保证更新外部库之后，所有依赖都正确安装了，建议您进行一次构建并更新工具。那么现在要做这个吗？
+Incorrect folder opened for WPILib project. The correct folder was found in a subfolder, Would you like to open it? Selecting no will cause many tasks to not work.: 你打开了一个错误的 WPILib 文件夹。我们倒是在子目录中找到了一个正确的 WPILib 项目文件夹，要打开它吗？如果不打开的话好多任务都无法正确执行。
 # No registered deployers
 # No available deployers
-# No available builders
-# No updates available
-# No dependencies installed
-# No new dependencies available
+No available builders: 没有可用的构建工具
+No updates available: 没有可用的更新
+No dependencies installed: 没有安装过的依赖
+No new dependencies available: 依赖没有可用的更新
 # No command providers found
 # Selection exited. Cancelling
-# WPILib project update ({0}) found, would you like to install it? {1} currently installed
-# No WPILib Update Found
+WPILib project update ({0}) found, would you like to install it? {1} currently installed: 找到了 WPILib 项目更新（{0}），你要安装它吗？目前已经安装的是 {1}。
+No WPILib Update Found: 没有找到 WPILib 更新
 No dependencies installed: 没有安装任何依赖
-# Check offline or online?
-# Cannot deploy code in an empty workspace
-# Cannot debug code in an empty workspace
+Check offline or online?: 离线检查还是在线检查？
+Cannot deploy code in an empty workspace: 不能在一个空的工作区中部署程序
+Cannot debug code in an empty workspace: 不能在一个空的工作区中调试程序
 # Cannot simulate number in an empty workspace
-# Cannot start tests in an empty workspace
-# Cannot create command in an empty workspace
-# Cannot set team number in an empty workspace
-# Cannot set language in an empty workspace
-# Cannot set skip tests in an empty workspace
-# Cannot set offline in an empty workspace
-# Cannot set deploy offline in an empty workspace
-# Cannot set stop simulation in an empty workspace
-# Cannot set auto save in an empty workspace
-# Cannot set team number in an empty workspace
-# Cannot run command on empty workspace
-# Cannot reset auto update with an empty workspace
-# Cannot install gradle tools with an empty workspace
+Cannot start tests in an empty workspace: 不能在一个空的工作区中执行测试
+Cannot create command in an empty workspace: 不能在一个空的工作区中创建命令
+Cannot set team number in an empty workspace: 不能在一个空的工作区中设置队号
+Cannot set language in an empty workspace: 不能在一个空的工作区中设置语言
+Cannot set skip tests in an empty workspace: 不能在一个空的工作区中设置跳过测试
+Cannot set offline in an empty workspace: 不能在一个空的工作区中设置离线
+Cannot set deploy offline in an empty workspace: 不能在一个空的工作区中设置离线部署
+Cannot set stop simulation in an empty workspace: 不能在一个空的工作区中设置停止仿真
+Cannot set auto save in an empty workspace: 不能在一个空的工作区中设置自动保存
+Cannot run command on empty workspace: 不能在一个空的工作区中执行命令
+Cannot reset auto update with an empty workspace: 不能在一个空的工作区中重置自动更新
+Cannot set start RioLog in an empty workspace: 不能在一个空的工作区中设置启动 RioLog
+Cannot install gradle tools with an empty workspace: 不能在一个空的工作区中安装 Gradle 工具
 # Cannot change desktop with an empty workspace
-# Cannot create into non empty folder
-# Must select a folder to create a command
-# No languages available to set
-# Skip tests on deploy? Currently {0}
+Cannot create into non empty folder: 不能在一个有内容的文件夹中创建
+Must select a folder to create a command: 要执行命令，必须选择一个文件夹
+No languages available to set: 没有可以设置的语言
+Skip tests on deploy? Currently {0}: 部署时要跳过测试吗？现在是 {0}
 # Run commands other then deploy in offline mode? Currently {0}
-# Run deploy command in offline mode? Currently {0}
+Run deploy command in offline mode? Currently {0}: 在离线模式执行部署命令吗？现在是 {0}
 # Stop simulation debugging on entry? Currently {0}
-Automatically save on deploy? Currently {0}: 部署时自动保存吗？当前为 {0}
-# Cannot set start RioLog in an empty workspace
-# Automatically start RioLog on deploy? Currently {0}
-# Successfully set java.home
-# Enable Desktop Support for Project? Currently ${isEnabled}
+Automatically save on deploy? Currently {0}: 部署时自动保存吗？现在是 {0}
+Automatically start RioLog on deploy? Currently {0}: 部署时自动启动 RioLog 吗？现在是 {0}
+Successfully set java.home: 成功设置 java.home
+# Enable Desktop Support for Project? Currently {0}: 要给项目打开桌面支持吗？现在是 {0}
 # Invalid project format to add or remove desktop support.
-# Command ({0}) returned code: {1}
-# Enter Gradle command to run
-# Failed to install {0}
-# Library already installed
+"Command ({0}) returned code: {1}": 命令（{0}）返回了 {1}
+Enter Gradle command to run: 输入要执行的 Gradle 命令
+Failed to install {0}: "{0} 安装失败"
+Library already installed: 库已经安装
 Manage current libraries: 管理当前的库
 Check for updates (offline): 离线检查更新
 Check for updates (online): 在线检查更新
@@ -59,14 +58,14 @@ Check to uninstall libraries: 勾选要卸载的库
 Check to install libraries: 勾选要安装的库
 Check to update libraries: 勾选要更新的库
 Enter a vendor file URL (get from vendor): 输入一个文件地址 (从供应商处得到)
-# Invalid selection
-# No available command creators
-# Unknown error occurred. See output window or console log for more information.
-# Documentation not installed locally. Would you like to download it?
-# Downloading Maven MetaData
-# Downloading API Docs
-# Extracting API Docs
-# Error Downloading Docs
+Invalid selection: 非法的选择
+No available command creators: 没有可以使用的命令创建工具
+Unknown error occurred. See output window or console log for more information.: 发生了未知错误。更多详细信息请看“输出”或者“终端”
+Documentation not installed locally. Would you like to download it?: 文档没有安装在本地，要下载吗？
+Downloading Maven MetaData: 正在下载 Maven 元数据
+Downloading API Docs: 正在下载 API 文档
+Extracting API Docs: 正在解压 API 文档
+Error Downloading Docs: API 文档下载时发生错误
 Select tasks to cancel: 选择要取消的任务
 No team number, would you like to save one?: 没找到队号，你要保存一个吗？
 Would you like to open the folder?: 你要打开这个文件夹吗？
@@ -75,4 +74,4 @@ Tool install failed: 工具安装失败
 Tool run canceled: 工具运行取消
 Failed to start tool: 工具运行失败
 No tools found. Would you like to use Gradle to grab some?: 没找到工具，要使用 Gradle 来装一些吗？
-# Can only extract to absolute path
+Can only extract to absolute path: 只能解压到一个绝对的路径
